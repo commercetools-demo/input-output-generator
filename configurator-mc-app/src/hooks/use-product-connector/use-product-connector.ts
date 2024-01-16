@@ -1,6 +1,4 @@
-import {
-  useMcQuery,
-} from '@commercetools-frontend/application-shell';
+import { useMcQuery } from '@commercetools-frontend/application-shell';
 import { GRAPHQL_TARGETS } from '@commercetools-frontend/constants';
 import FetchAssetsQuery from './fetch-product.ctp.graphql';
 import { useEffect, useMemo } from 'react';
@@ -12,6 +10,7 @@ export const useProduct = ({ productId }: { productId: string }) => {
     data,
     error: fetchError,
     loading: fetchLoading,
+    // TODO: define a type for this. try to see if you can use  CT GraphQL schema
   } = useMcQuery<any>(FetchAssetsQuery, {
     variables: {
       where,
@@ -21,6 +20,11 @@ export const useProduct = ({ productId }: { productId: string }) => {
     },
   });
 
+  const getProduct = async () => {
+    const { data } = await refetch();
+    // TODO: remove all __typename
+    return data?.products?.results?.[0];
+  };
 
   const version = useMemo(() => {
     if (!fetchLoading && !!data?.products?.results?.[0]) {
@@ -36,14 +40,9 @@ export const useProduct = ({ productId }: { productId: string }) => {
     return null;
   }, [fetchLoading, data]);
 
-  useEffect(() => {
-    if (productId) {
-      refetch();
-    }
-  }, [productId])
-
   return {
     product: result,
+    getProduct,
     version,
     error: fetchError,
     loading: fetchLoading,
