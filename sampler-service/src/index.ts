@@ -13,6 +13,8 @@ import { logger } from './utils/logger.utils';
 import { readConfiguration } from './utils/config.utils';
 import { errorMiddleware } from './middleware/error.middleware';
 
+import cors from 'cors';
+
 // Read env variables
 readConfiguration();
 
@@ -31,6 +33,8 @@ app.use('/sampler-service', ServiceRoutes);
 
 // Global error handler
 app.use(errorMiddleware);
+
+app.use(cors());
 
 // Listen the application
 const server = app.listen(PORT, () => {
