@@ -27,6 +27,7 @@ app.disable('x-powered-by');
 // Define configurations
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
 // Define routes
 app.use('/sampler-service', ServiceRoutes);
@@ -34,7 +35,6 @@ app.use('/sampler-service', ServiceRoutes);
 // Global error handler
 app.use(errorMiddleware);
 
-app.use(cors());
 
 // Listen the application
 const server = app.listen(PORT, () => {
