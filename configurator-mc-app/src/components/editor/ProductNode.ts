@@ -4,6 +4,8 @@ import { TProductNode, EditorExtraOptions } from '.';
 
 const socket = new ClassicPreset.Socket('socket');
 
+const INITIAL_HEIGHT = 150;
+
 // TODO: make a generic class for all CT entities
 export class ProductNode extends ClassicPreset.Node<
   {
@@ -12,8 +14,7 @@ export class ProductNode extends ClassicPreset.Node<
   TProductNode,
   {}
 > {
-    // TODO: make height adjustable by number of outputs
-  height = 280;
+  height = INITIAL_HEIGHT;
   width = 180;
   options: EditorExtraOptions;
   change?: () => void;
@@ -36,8 +37,10 @@ export class ProductNode extends ClassicPreset.Node<
     const productdata = await this.options.getProductData(
       this.inputs.productId?.control?.value
     );
-    console.log({ productdata });
 
+    const heightMultiplier = Object.keys(productdata).length;
+
+    this.height = INITIAL_HEIGHT + 20 * heightMultiplier;
     (Object.keys(productdata) as Array<keyof Product>).forEach((key) => {
       this.addOutput(key, new ClassicPreset.Output(socket, key));
     });
