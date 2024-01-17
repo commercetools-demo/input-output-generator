@@ -34,16 +34,16 @@ export class ProductNode extends ClassicPreset.Node<
 
   async data(): any {
     // call customer endpoint with customerId
-    const productdata = await this.options.getProductData(
+    const productData = await this.options.getProductData(
       this.inputs.productId?.control?.value
     );
 
-    const heightMultiplier = Object.keys(productdata).length;
+    const heightMultiplier = Object.keys(productData).length;
 
     this.height = INITIAL_HEIGHT + 20 * heightMultiplier;
-    (Object.keys(productdata) as Array<keyof Product>).forEach((key) => {
+    (Object.keys(productData) as Array<keyof Product>).forEach((key) => {
       this.addOutput(key, new ClassicPreset.Output(socket, key));
     });
-    return productdata;
+    return productData;
   }
 }
