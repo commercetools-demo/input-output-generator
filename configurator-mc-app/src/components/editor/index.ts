@@ -1,38 +1,23 @@
-import { NodeEditor, GetSchemes, ClassicPreset } from 'rete';
+import { NodeEditor } from 'rete';
 import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
 import {
   ConnectionPlugin,
   Presets as ConnectionPresets,
 } from 'rete-connection-plugin';
-import { ReactPlugin, Presets, ReactArea2D } from 'rete-react-plugin';
+import { ReactPlugin, Presets } from 'rete-react-plugin';
 import {
   AutoArrangePlugin,
   Presets as ArrangePresets,
 } from 'rete-auto-arrange-plugin';
 import { DataflowEngine } from 'rete-engine';
-import { ContextMenuExtra } from 'rete-context-menu-plugin';
-import { Product } from '@commercetools/platform-sdk';
+import {
+  ContextMenuExtra,
+  ContextMenuPlugin,
+  Presets as ContextMenuPresets,
+} from 'rete-context-menu-plugin';
 import { ProductNode } from './ProductNode';
-
-export type TProductNode = {
-  [Property in keyof Product]: ClassicPreset.Socket;
-};
-
-export interface EditorExtraOptions {
-  getProductData: (productId: string) => Promise<any>;
-}
-
-class Connection<
-  A extends Node,
-  B extends Node
-> extends ClassicPreset.Connection<A, B> {}
-
-type Node = ProductNode;
-type ConnProps = Connection<ProductNode, ProductNode>;
-//   | Connection<ClientNode, ClientNode>;
-type Schemes = GetSchemes<Node, ConnProps>;
-
-type AreaExtra = ReactArea2D<any> | ContextMenuExtra;
+import { EditorExtraOptions, Schemes, AreaExtra } from './types';
+import { JSONObejctNode } from './JSONObejctNode';
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -50,7 +35,7 @@ export async function createEditor(
 
     editor
       .getNodes()
-      .filter((n) => n instanceof ProductNode)
+      //   .filter((n) => n instanceof ProductNode)
       .forEach((n) => engine.fetch(n.id));
   }
 
@@ -58,6 +43,13 @@ export async function createEditor(
     accumulating: AreaExtensions.accumulateOnCtrl(),
   });
 
+  const contextMenu = new ContextMenuPlugin<Schemes>({
+    items: ContextMenuPresets.classic.setup([
+      ['JSON', () => new JSONObejctNode({ ...options }, process)],
+    ]),
+  });
+
+  area.use(contextMenu);
   render.addPreset(Presets.contextMenu.setup());
   render.addPreset(Presets.classic.setup());
 
@@ -70,6 +62,7 @@ export async function createEditor(
   area.use(connection);
   area.use(render);
   area.use(arrange);
+  area.use(contextMenu);
 
   AreaExtensions.simpleNodesOrder(area);
   AreaExtensions.showInputControl(area);
@@ -81,9 +74,11 @@ export async function createEditor(
     return context;
   });
 
-  const product = new ProductNode(options, process);
+  const product = new ProductNode({ ...options }, process);
+  const json = new JSONObejctNode({ ...options }, process);
 
   await editor.addNode(product);
+  await editor.addNode(json);
 
   await arrange.layout();
   AreaExtensions.zoomAt(area, editor.getNodes());

@@ -1,12 +1,12 @@
 import { ClassicPreset } from 'rete';
 import { Product } from '@commercetools/platform-sdk';
-import { TProductNode, EditorExtraOptions } from '.';
+import { INITIAL_HEIGHT, INITIAL_WIDTH } from './constants';
+import { EditorExtraOptions, TProductNode } from './types';
 
 const socket = new ClassicPreset.Socket('socket');
 
-const INITIAL_HEIGHT = 150;
-
 // TODO: make a generic class for all CT entities
+// TODO: generic class can also accept graph ql query
 export class ProductNode extends ClassicPreset.Node<
   {
     productId: ClassicPreset.Socket;
@@ -15,7 +15,7 @@ export class ProductNode extends ClassicPreset.Node<
   {}
 > {
   height = INITIAL_HEIGHT;
-  width = 180;
+  width = INITIAL_WIDTH;
   options: EditorExtraOptions;
   change?: () => void;
 
@@ -33,17 +33,21 @@ export class ProductNode extends ClassicPreset.Node<
   }
 
   async data(): any {
-    // call customer endpoint with customerId
+    // TODO: do not need to call the endpoint every time. store productData on class level
     const productData = await this.options.getProductData(
       this.inputs.productId?.control?.value
     );
 
-    const heightMultiplier = Object.keys(productData).length;
+    const productDataKeys = Object.keys(productData);
+    const outputKeys = Object.keys(this.outputs);
+    const heightMultiplier = productDataKeys.length;
 
     this.height = INITIAL_HEIGHT + 20 * heightMultiplier;
-    (Object.keys(productData) as Array<keyof Product>).forEach((key) => {
-      this.addOutput(key, new ClassicPreset.Output(socket, key));
-    });
+    (productDataKeys as Array<keyof Product>)
+      .filter((key) => !outputKeys.includes(key))
+      .forEach((key) => {
+        this.addOutput(key, new ClassicPreset.Output(socket, key));
+      });
     return productData;
   }
 }

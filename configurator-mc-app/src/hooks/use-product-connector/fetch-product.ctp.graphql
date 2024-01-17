@@ -16,7 +16,7 @@ fragment Variant on ProductVariant {
     }
   }
 }
-query FetchAssets($where: String!) {
+query FetchProduct($where: String!) {
   products(where: $where) {
     results {
       id
