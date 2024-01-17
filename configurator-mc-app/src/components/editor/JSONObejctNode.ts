@@ -13,11 +13,11 @@ export class JSONObejctNode extends ClassicPreset.Node<
 > {
   height = INITIAL_HEIGHT;
   width = INITIAL_WIDTH;
-  options: EditorExtraOptions;
+  options?: EditorExtraOptions;
   returningObject: Record<string, any> = {};
   change?: () => void;
 
-  constructor(options: EditorExtraOptions, change?: () => void) {
+  constructor(options?: EditorExtraOptions, change?: () => void) {
     super('JSON OBJECT');
 
     const jsonObject = new ClassicPreset.Input(socket, 'JSON object');
@@ -33,12 +33,12 @@ export class JSONObejctNode extends ClassicPreset.Node<
   async data(inputs: { jsonObject: any[] }): any {
     const { jsonObject } = inputs;
 
-    const heightMultiplier = Object.keys(this.inputs.jsonObject || {}).length;
-
-    this.height = INITIAL_HEIGHT + 20 * heightMultiplier;
-
+    
+    
     const outputKeys = Object.keys(this.outputs);
     const jsonObjectKeys = Object.keys(jsonObject?.[0] || {});
+    const heightMultiplier = jsonObjectKeys.length;
+    this.height = INITIAL_HEIGHT + 40 * heightMultiplier;
 
     jsonObjectKeys
       .filter((key) => !outputKeys.includes(key))

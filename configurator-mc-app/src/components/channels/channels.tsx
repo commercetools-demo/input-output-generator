@@ -10,7 +10,7 @@ import { BackIcon } from '@commercetools-uikit/icons';
 import { useRete } from 'rete-react-plugin';
 import { createEditor } from '../editor';
 import { useCallback, useState } from 'react';
-import { useProduct } from '../../hooks/use-product-connector';
+import { useSampler } from '../../hooks/sampler-connection';
 
 type TChannelsProps = {
   linkToWelcome: string;
@@ -19,14 +19,19 @@ type TChannelsProps = {
 const Channels = (props: TChannelsProps) => {
   const intl = useIntl();
 
-  const [productId, setProductId] = useState('');
-  const { getProduct } = useProduct({ productId: productId });
-  const getProductData = useCallback(async (pId: string) => {
-    setProductId(pId);
-    return getProduct();
+  // const [productId, setProductId] = useState('');
+  // const { getProduct } = useProduct({ productId: productId });
+
+  const {getData} = useSampler();
+  // const getProductData = useCallback(async (entity: string) => {
+  //   setProductId(pId);
+  //   return getProduct();
+  // }, []);
+  const getSampleData = useCallback(async (entity: string) => {
+    return getData(entity);
   }, []);
   const handleEditor = useCallback(
-    (el) => createEditor({ getProductData }, el),
+    (el) => createEditor({ getSampleData }, el),
     []
   );
 

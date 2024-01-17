@@ -16,6 +16,14 @@ const config = {
       url: '${env:APPLICATION_URL}',
     },
   },
+  additionalEnv: {
+    samplerURL: '${env:SAMPLER_URL}',
+  },
+  headers: {
+    csp: {
+      'connect-src': ['${env:SAMPLER_URL}/product'],
+    },
+  },
   oAuthScopes: {
     view: ['view_products'],
     manage: ['manage_products'],

@@ -16,8 +16,11 @@ import {
   Presets as ContextMenuPresets,
 } from 'rete-context-menu-plugin';
 import { ProductNode } from './ProductNode';
-import { EditorExtraOptions, Schemes, AreaExtra } from './types';
+import { EditorExtraOptions, Schemes, AreaExtra, Connection } from './types';
 import { JSONObejctNode } from './JSONObejctNode';
+import { QueryNode } from './QueryNode';
+import { ArrayNode } from './ArrayNode';
+import { FinalNode } from './FinalNode';
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -45,7 +48,10 @@ export async function createEditor(
 
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
-      ['JSON', () => new JSONObejctNode({ ...options }, process)],
+      ['JSON', () => new JSONObejctNode(undefined, process)],
+      ['Array', () => new ArrayNode(undefined, process)],
+      ['Final', () => new FinalNode(undefined, process)],
+      ['Product', () => new ProductNode(undefined, process)],
     ]),
   });
 
@@ -74,10 +80,12 @@ export async function createEditor(
     return context;
   });
 
-  const product = new ProductNode({ ...options }, process);
-  const json = new JSONObejctNode({ ...options }, process);
+  const query = new QueryNode({...options, initial: 'product'}, process);
+  const arrayN = new ArrayNode(undefined, process);
+  const json = new JSONObejctNode(undefined, process);
 
-  await editor.addNode(product);
+  await editor.addNode(query);
+  await editor.addNode(arrayN);
   await editor.addNode(json);
 
   await arrange.layout();
