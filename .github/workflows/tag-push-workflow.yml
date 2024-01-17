@@ -1,0 +1,35 @@
+name: Tag Push Trigger
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  trigger-external-url:
+    runs-on: self-hosted  # Specify your self-hosted runner
+    steps:
+    - name: Get Access Token
+      id: get_token
+      run: |
+        TOKEN_RESPONSE=$(curl -X POST -u ${{ secrets.CLIENT_ID }}:${{ secrets.CLIENT_SECRET }} "https://auth.us-central1.gcp.commercetools.com/oauth/token?grant_type=client_credentials")
+        ACCESS_TOKEN=$(echo $TOKEN_RESPONSE | jq -r '.access_token')
+        echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
+
+    - name: Get draft
+      run: |
+        DRAFT_RESPONSE=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" -H "Content-Type: application/json" "https://connect.us-central1.gcp.commercetools.com/connectors/drafts/key=in-out-generator")
+        DRAFT_VERSION=$(echo $DRAFT_RESPONSE | jq -r '.version')
+        echo "DRAFT_VERSION=$DRAFT_VERSION" >> $GITHUB_ENV
+
+    - name: Update draft
+      run: |
+        UPDTAE_DRAFT_RESPONSE=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" -H "Content-Type: application/json" --data-raw '{"version" : $DRAFT_VERSION ,"actions" : [ {"action" : "setRepository","url": "git@github.com:commercetools-demo/input-output-generator.git","tag": "${{ github.ref }}"  } ]}' "https://connect.us-central1.gcp.commercetools.com/connectors/drafts/key=in-out-generator")
+        DRAFT_VERSION=$(echo $UPDTAE_DRAFT_RESPONSE | jq -r '.version')
+        echo "DRAFT_VERSION=$DRAFT_VERSION" >> $GITHUB_ENV
+
+    - name: Previewable draft
+      run: |
+        UPDTAE_DRAFT_RESPONSE=$(curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" -H "Content-Type: application/json" --data '{"version" : $DRAFT_VERSION,"actions" : [ {"action" : "updatePreviewable"} ]}' "https://connect.us-central1.gcp.commercetools.com/connectors/drafts/key=in-out-generator")
+        DRAFT_VERSION=$(echo $UPDTAE_DRAFT_RESPONSE | jq -r '.version')
+        echo "DRAFT_VERSION=$DRAFT_VERSION" >> $GITHUB_ENV
