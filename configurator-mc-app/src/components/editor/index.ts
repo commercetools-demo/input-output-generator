@@ -1,4 +1,4 @@
-import { NodeEditor } from 'rete';
+import { ClassicPreset, NodeEditor } from 'rete';
 import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
 import {
   ConnectionPlugin,
@@ -24,6 +24,8 @@ import { ArrayNode } from './nodes/ArrayNode';
 import { FinalNode } from './nodes/FinalNode';
 import { QueryDropdownElement } from './elements/QueryDropDown';
 import { QueryDropdownControl } from './controls/QueryDropdownControl';
+import { ButtonControl } from './controls/ButtonControl';
+import { ButtonElement } from './elements/Button';
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -76,6 +78,8 @@ export async function createEditor(
         control(data) {
           if ((data.payload as unknown) instanceof QueryDropdownControl) {
             return QueryDropdownElement as any;
+          } else if ((data.payload as unknown) instanceof ButtonControl) {
+            return ButtonElement as any;
           } else {
             return Presets.classic.Control;
           }
@@ -107,15 +111,23 @@ export async function createEditor(
     return context;
   });
 
-  const query = new QueryNode({ ...options, initial: 'product' }, process);
+  const query = new QueryNode({ ...options, initial: 'product', area }, process);
   const arrayN = new ArrayNode(undefined, process);
   const json = new JSONObejctNode(undefined, process);
-  const final = new FinalNode(undefined, process);
+  const final = new FinalNode({ area }, process);
 
   await editor.addNode(query);
   await editor.addNode(arrayN);
   await editor.addNode(json);
   await editor.addNode(final);
+  
+
+  // TODO: fix this
+  // try {
+  //   await editor.addConnection(new ClassicPreset.Connection(query, "results", arrayN, "array"));
+  // } catch (e) {
+  //   console.log('todo: fix this');
+  // }
 
   const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
     duration: 500,

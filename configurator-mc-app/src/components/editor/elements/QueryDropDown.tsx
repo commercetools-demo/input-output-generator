@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { QueryDropdownControl } from '../controls/QueryDropdownControl';
 
 export function QueryDropdownElement(props: { data: QueryDropdownControl }) {
@@ -5,11 +6,15 @@ export function QueryDropdownElement(props: { data: QueryDropdownControl }) {
     props.data.entity = event.target.value;
     props.data.onChange(event.target.value);
   };
+  useEffect(() => {
+    if (props.data.entity) {
+      props.data.onChange(props.data.entity);
+    }
+  }, []);
   return (
     <select onChange={onChange}>
-      <option></option>
-      <option value="customer">Customer</option>
       <option value="product">Product</option>
+      <option value="customer">Customer</option>
     </select>
   );
 }

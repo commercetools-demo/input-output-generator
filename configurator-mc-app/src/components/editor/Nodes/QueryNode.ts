@@ -25,6 +25,7 @@ export class QueryNode extends ClassicPreset.Node<
     super('Query');
     const entity = new ClassicPreset.Input(socket, 'Entity name');
     const dropdownControl = new QueryDropdownControl(this.onChange);
+    dropdownControl.entity = options?.initial
 
     entity.addControl(dropdownControl);
 
@@ -54,7 +55,7 @@ export class QueryNode extends ClassicPreset.Node<
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
 
-    await this.data();
+    this.options?.area?.update('node', this.id);
   };
 
   async data(): Promise<Record<string, any>> {
