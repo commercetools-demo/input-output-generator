@@ -15,12 +15,12 @@ import {
   ContextMenuPlugin,
   Presets as ContextMenuPresets,
 } from 'rete-context-menu-plugin';
-import { ProductNode } from './ProductNode';
+import { ProductNode } from './Nodes/ProductNode';
 import { EditorExtraOptions, Schemes, AreaExtra, Connection } from './types';
-import { JSONObejctNode } from './JSONObejctNode';
-import { QueryNode } from './QueryNode';
-import { ArrayNode } from './ArrayNode';
-import { FinalNode } from './FinalNode';
+import { JSONObejctNode } from './Nodes/JSONObejctNode';
+import { QueryNode } from './Nodes/QueryNode';
+import { ArrayNode } from './Nodes/ArrayNode';
+import { FinalNode } from './Nodes/FinalNode';
 
 export async function createEditor(
   options: EditorExtraOptions,

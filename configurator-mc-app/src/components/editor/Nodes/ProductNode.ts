@@ -1,65 +1,56 @@
 import { ClassicPreset } from 'rete';
 import { Product } from '@commercetools/platform-sdk';
-import { INITIAL_HEIGHT, INITIAL_WIDTH } from './constants';
-import { EditorExtraOptions, TProductNode } from './types';
+import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
+import { EditorExtraOptions, TProductNode } from '../types';
 
 const socket = new ClassicPreset.Socket('socket');
 
 // TODO: make a generic class for all CT entities
 // TODO: generic class can also accept graph ql query
-export class QueryNode extends ClassicPreset.Node<
+export class ProductNode extends ClassicPreset.Node<
   {
-    entity: ClassicPreset.Socket;
+    product: ClassicPreset.Socket;
   },
-  {},
+  TProductNode,
   {}
 > {
   height = INITIAL_HEIGHT;
   width = INITIAL_WIDTH;
   options?: EditorExtraOptions;
-  returningObject: Record<string, any> = {};
   change?: () => void;
 
   constructor(options?: EditorExtraOptions, change?: () => void) {
-    super('Query');
-    const entity = new ClassicPreset.Input(socket, 'Entity name');
+    super('PRODUCT');
 
-    entity.addControl(
+    const product = new ClassicPreset.Input(socket, 'product data');
+
+    product.addControl(
       new ClassicPreset.InputControl('text', { initial: '', change })
     );
 
-    this.addInput('entity', entity);
+    this.addInput('product', product);
     this.options = options;
   }
 
-  async setEntityInput(value: string): {};
-
-  async data(): any {
-    
+  async data(inputs: { product: Product[] }): any {
     // TODO: do not need to call the endpoint every time. store productData on class level
+    // const productData = await this.options.getProductData(
+    //   this.inputs.productId?.control?.value
+    // );
 
-    const queryResult = await this.options?.getSampleData(
-      this.inputs.entity?.control?.value
-    );
-
-    if (!queryResult || queryResult.results.length === 0) {
-      console.log('no results');
-
+    if (!inputs.product?.[0]) {
       return {};
     }
-
-    const queryResultKeys = Object.keys(queryResult);
+    const productDataKeys = Object.keys(inputs.product[0]);
     const outputKeys = Object.keys(this.outputs);
-    const heightMultiplier = queryResultKeys.length;
+    const heightMultiplier = productDataKeys.length;
 
     this.height = INITIAL_HEIGHT + 20 * heightMultiplier;
-    (queryResultKeys as Array<keyof Product>)
+    (productDataKeys as Array<keyof Product>)
       .filter((key) => !outputKeys.includes(key))
       .forEach((key) => {
-        this.returningObject[key] = queryResult[key];
-
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
-    return this.returningObject;
+    return inputs.product[0];
   }
 }
