@@ -8,6 +8,7 @@ import { ReactPlugin, Presets } from 'rete-react-plugin';
 import {
   AutoArrangePlugin,
   Presets as ArrangePresets,
+  ArrangeAppliers,
 } from 'rete-auto-arrange-plugin';
 import { DataflowEngine } from 'rete-engine';
 import {
@@ -56,7 +57,6 @@ export async function createEditor(
     items: ContextMenuPresets.classic.setup([
       ['JSON', () => new JSONObejctNode(undefined, process)],
       ['Array', () => new ArrayNode(undefined, process)],
-      ['Final', () => new FinalNode(undefined, process)],
       ['Product', () => new ProductNode(undefined, process)],
     ]),
   });
@@ -110,12 +110,22 @@ export async function createEditor(
   const query = new QueryNode({ ...options, initial: 'product' }, process);
   const arrayN = new ArrayNode(undefined, process);
   const json = new JSONObejctNode(undefined, process);
+  const final = new FinalNode(undefined, process);
 
   await editor.addNode(query);
   await editor.addNode(arrayN);
   await editor.addNode(json);
+  await editor.addNode(final);
 
-  await arrange.layout();
+  const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
+    duration: 500,
+    timingFunction: (t) => t,
+    async onTick() {
+      await AreaExtensions.zoomAt(area, editor.getNodes());
+    }
+  });
+
+  await arrange.layout({applier, });
   AreaExtensions.zoomAt(area, editor.getNodes());
 
   return {
