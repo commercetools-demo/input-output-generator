@@ -8,6 +8,7 @@ import { QueryNode } from './nodes/QueryNode';
 import { SampleDataResult } from '../../hooks/sampler-connection/types';
 import { ArrayNode } from './nodes/ArrayNode';
 import { FinalNode } from './nodes/FinalNode';
+import { AreaPlugin } from 'rete-area-plugin';
 export type TProductNode = {
   [Property in keyof Product]: ClassicPreset.Socket;
 };
@@ -15,7 +16,8 @@ export type TProductNode = {
 export interface EditorExtraOptions {
   // TODO: fix type
   // getProductData: (productId: string) => Promise<any>;
-  getSampleData: (entity: string) => Promise<SampleDataResult>;
+  getSampleData?: (entity: string) => Promise<SampleDataResult>;
+  area?: AreaPlugin<Schemes, AreaExtra>;
   initial?: any;
 }
 
