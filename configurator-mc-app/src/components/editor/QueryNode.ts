@@ -22,7 +22,6 @@ export class QueryNode extends ClassicPreset.Node<
 
   constructor(options?: EditorExtraOptions, change?: () => void) {
     super('Query');
-
     const entity = new ClassicPreset.Input(socket, 'Entity name');
 
     entity.addControl(
@@ -35,7 +34,8 @@ export class QueryNode extends ClassicPreset.Node<
 
   async setEntityInput(value: string): {};
 
-  async data(inputs: { entity: any[] }): any {
+  async data(): any {
+    
     // TODO: do not need to call the endpoint every time. store productData on class level
 
     const queryResult = await this.options?.getSampleData(

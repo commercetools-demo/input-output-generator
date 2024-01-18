@@ -8,7 +8,7 @@ export class FinalNode extends ClassicPreset.Node<
   {
     inputData: ClassicPreset.Socket;
   },
-  TProductNode,
+  {},
   {}
 > {
   height = INITIAL_HEIGHT;
