@@ -1,1 +1,1 @@
-export {useSampler} from './sampler-connection';
+export { useSampler } from './sampler-connection';

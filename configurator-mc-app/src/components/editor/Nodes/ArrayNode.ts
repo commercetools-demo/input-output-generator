@@ -42,6 +42,6 @@ export class ArrayNode extends ClassicPreset.Node<
     }
     console.log(this.outputs.item);
 
-    return {item: array[0][0]};
+    return { item: array[0][0] };
   }
 }

@@ -2,6 +2,7 @@ import { ClassicPreset } from 'rete';
 import { Product } from '@commercetools/platform-sdk';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
 import { EditorExtraOptions, TProductNode } from '../types';
+import { QueryDropdownControl } from '../controls/QueryDropdownControl';
 
 const socket = new ClassicPreset.Socket('socket');
 
@@ -23,29 +24,21 @@ export class QueryNode extends ClassicPreset.Node<
   constructor(options?: EditorExtraOptions, change?: () => void) {
     super('Query');
     const entity = new ClassicPreset.Input(socket, 'Entity name');
+    const dropdownControl = new QueryDropdownControl(this.onChange);
 
-    entity.addControl(
-      new ClassicPreset.InputControl('text', { initial: '', change })
-    );
+    entity.addControl(dropdownControl);
 
     this.addInput('entity', entity);
+    // this.addControl('dropdownControl', dropdownControl);
     this.options = options;
   }
 
-  async setEntityInput(value: string): {};
-
-  async data(): any {
-    
-    // TODO: do not need to call the endpoint every time. store productData on class level
-
-    const queryResult = await this.options?.getSampleData(
-      this.inputs.entity?.control?.value
-    );
-
+  private onChange = async (value: string) => {
+    const queryResult = await this.options?.getSampleData(value);
     if (!queryResult || queryResult.results.length === 0) {
       console.log('no results');
 
-      return {};
+      return;
     }
 
     const queryResultKeys = Object.keys(queryResult);
@@ -60,6 +53,11 @@ export class QueryNode extends ClassicPreset.Node<
 
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
+
+    await this.data();
+  };
+
+  async data(): Promise<Record<string, any>> {
     return this.returningObject;
   }
 }

@@ -22,7 +22,7 @@ const Channels = (props: TChannelsProps) => {
   // const [productId, setProductId] = useState('');
   // const { getProduct } = useProduct({ productId: productId });
 
-  const {getData} = useSampler();
+  const { getData } = useSampler();
   // const getProductData = useCallback(async (entity: string) => {
   //   setProductId(pId);
   //   return getProduct();
