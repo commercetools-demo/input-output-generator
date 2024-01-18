@@ -1,13 +1,13 @@
 import { Product } from '@commercetools/platform-sdk';
 import { ClassicPreset, GetSchemes } from 'rete';
-import { ProductNode } from './ProductNode';
+import { ProductNode } from './Nodes/ProductNode';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
-import { JSONObejctNode } from './JSONObejctNode';
-import { QueryNode } from './QueryNode';
+import { JSONObejctNode } from './Nodes/JSONObejctNode';
+import { QueryNode } from './Nodes/QueryNode';
 import { SampleDataResult } from '../../hooks/sampler-connection/types';
-import { ArrayNode } from './ArrayNode';
-import { FinalNode } from './FinalNode';
+import { ArrayNode } from './Nodes/ArrayNode';
+import { FinalNode } from './Nodes/FinalNode';
 export type TProductNode = {
   [Property in keyof Product]: ClassicPreset.Socket;
 };
