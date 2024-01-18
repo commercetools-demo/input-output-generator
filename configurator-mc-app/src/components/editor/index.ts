@@ -33,13 +33,20 @@ export async function createEditor(
   const arrange = new AutoArrangePlugin<Schemes>();
   const engine = new DataflowEngine<Schemes>();
 
-  function process() {
+  async function process() {
     engine.reset();
 
     editor
       .getNodes()
-      //   .filter((n) => n instanceof ProductNode)
       .forEach((n) => engine.fetch(n.id));
+
+    const all = await Promise.all(
+      editor
+        .getNodes()
+        .filter((n) => n instanceof FinalNode)
+        .map((n) => engine.fetch(n.id))
+    );
+    console.log(all);
   }
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
@@ -80,7 +87,7 @@ export async function createEditor(
     return context;
   });
 
-  const query = new QueryNode({...options, initial: 'product'}, process);
+  const query = new QueryNode({ ...options, initial: 'product' }, process);
   const arrayN = new ArrayNode(undefined, process);
   const json = new JSONObejctNode(undefined, process);
 

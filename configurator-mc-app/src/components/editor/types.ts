@@ -37,8 +37,6 @@ export type ConnProps =
   | Connection<JSONObejctNode, FinalNode>
   | Connection<ArrayNode, FinalNode>;
 
-// export type ConnProps = Connection<Node, Node>;
-//   | Connection<ClientNode, ClientNode>;
 export type Schemes = GetSchemes<Node, ConnProps>;
 
 export type AreaExtra = ReactArea2D<any> | ContextMenuExtra;
