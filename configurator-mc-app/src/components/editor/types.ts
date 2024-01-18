@@ -1,13 +1,13 @@
 import { Product } from '@commercetools/platform-sdk';
 import { ClassicPreset, GetSchemes } from 'rete';
-import { ProductNode } from './Nodes/ProductNode';
+import { ProductNode } from './nodes/ProductNode';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
-import { JSONObejctNode } from './Nodes/JSONObejctNode';
-import { QueryNode } from './Nodes/QueryNode';
+import { JSONObejctNode } from './nodes/JSONObejctNode';
+import { QueryNode } from './nodes/QueryNode';
 import { SampleDataResult } from '../../hooks/sampler-connection/types';
-import { ArrayNode } from './Nodes/ArrayNode';
-import { FinalNode } from './Nodes/FinalNode';
+import { ArrayNode } from './nodes/ArrayNode';
+import { FinalNode } from './nodes/FinalNode';
 export type TProductNode = {
   [Property in keyof Product]: ClassicPreset.Socket;
 };
@@ -19,7 +19,12 @@ export interface EditorExtraOptions {
   initial?: any;
 }
 
-export type Node = QueryNode | ProductNode | JSONObejctNode | ArrayNode | FinalNode;
+export type Node =
+  | QueryNode
+  | ProductNode
+  | JSONObejctNode
+  | ArrayNode
+  | FinalNode;
 export class Connection<
   A extends Node,
   B extends Node

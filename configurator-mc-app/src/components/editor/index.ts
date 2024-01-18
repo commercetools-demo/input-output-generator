@@ -15,12 +15,14 @@ import {
   ContextMenuPlugin,
   Presets as ContextMenuPresets,
 } from 'rete-context-menu-plugin';
-import { ProductNode } from './Nodes/ProductNode';
+import { ProductNode } from './nodes/ProductNode';
 import { EditorExtraOptions, Schemes, AreaExtra, Connection } from './types';
-import { JSONObejctNode } from './Nodes/JSONObejctNode';
-import { QueryNode } from './Nodes/QueryNode';
-import { ArrayNode } from './Nodes/ArrayNode';
-import { FinalNode } from './Nodes/FinalNode';
+import { JSONObejctNode } from './nodes/JSONObejctNode';
+import { QueryNode } from './nodes/QueryNode';
+import { ArrayNode } from './nodes/ArrayNode';
+import { FinalNode } from './nodes/FinalNode';
+import { QueryDropdownElement } from './elements/QueryDropDown';
+import { QueryDropdownControl } from './controls/QueryDropdownControl';
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -36,9 +38,7 @@ export async function createEditor(
   async function process() {
     engine.reset();
 
-    editor
-      .getNodes()
-      .forEach((n) => engine.fetch(n.id));
+    editor.getNodes().forEach((n) => engine.fetch(n.id));
 
     const all = await Promise.all(
       editor
@@ -46,7 +46,6 @@ export async function createEditor(
         .filter((n) => n instanceof FinalNode)
         .map((n) => engine.fetch(n.id))
     );
-    console.log(all);
   }
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
@@ -63,6 +62,27 @@ export async function createEditor(
   });
 
   area.use(contextMenu);
+  render.addPreset(
+    // @ts-ignore
+    Presets.classic.setup({
+      customize: {
+        // node(context) {
+
+        //   if (context.payload.label === 'Query') {
+        //     return CustomNode;
+        //   }
+        //   return Presets.classic.Node;
+        // },
+        control(data) {
+          if ((data.payload as unknown) instanceof QueryDropdownControl) {
+            return QueryDropdownElement as any;
+          } else {
+            return Presets.classic.Control;
+          }
+        },
+      },
+    })
+  );
   render.addPreset(Presets.contextMenu.setup());
   render.addPreset(Presets.classic.setup());
 

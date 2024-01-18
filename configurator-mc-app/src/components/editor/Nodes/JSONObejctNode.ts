@@ -33,8 +33,6 @@ export class JSONObejctNode extends ClassicPreset.Node<
   async data(inputs: { jsonObject: any[] }): any {
     const { jsonObject } = inputs;
 
-    
-    
     const outputKeys = Object.keys(this.outputs);
     const jsonObjectKeys = Object.keys(jsonObject?.[0] || {});
     const heightMultiplier = jsonObjectKeys.length;
