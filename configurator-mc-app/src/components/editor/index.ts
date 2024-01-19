@@ -110,6 +110,20 @@ export async function createEditor(
   AreaExtensions.showInputControl(area);
 
   editor.addPipe((context) => {
+    if (context.type === 'connectioncreated') {
+      if (editor.getNode(context.data.target) instanceof FinalNode) {
+        (editor.getNode(context.data.target) as FinalNode).connectionAdded(
+          context.data
+        );
+      }
+    }
+    if (context.type === 'connectionremoved') {
+      if (editor.getNode(context.data.target) instanceof FinalNode) {
+        (editor.getNode(context.data.target) as FinalNode).connectionRemoved(
+          context.data
+        );
+      }
+    }
     if (['connectioncreated', 'connectionremoved'].includes(context.type)) {
       process();
     }
