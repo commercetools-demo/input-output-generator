@@ -1,14 +1,14 @@
 import { ClassicPreset } from 'rete';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
-import { EditorExtraOptions, TProductNode } from '../types';
+import { ConnProps, EditorExtraOptions, TProductNode } from '../types';
 import { ButtonControl } from '../controls/ButtonControl';
+import { Socket } from 'rete/_types/presets/classic';
 
 const socket = new ClassicPreset.Socket('socket');
 
+
 export class FinalNode extends ClassicPreset.Node<
-  {
-    input0: ClassicPreset.Socket;
-  },
+  Record<string, Socket>,
   {},
   {
     addButton: ButtonControl;
@@ -23,13 +23,9 @@ export class FinalNode extends ClassicPreset.Node<
   constructor(options?: EditorExtraOptions, change?: () => void) {
     super('OUTPUT');
 
-    const input0 = new ClassicPreset.Input(socket, 'Input data');
+    const input0 = new ClassicPreset.Input(socket, 'input0');
     const addButton = new ButtonControl(() => this.onAddClick(change));
     addButton.label = '+';
-
-    input0.addControl(
-      new ClassicPreset.InputControl('text', { initial: '', change })
-    );
 
     this.addInput('input0', input0);
     this.addControl('addButton', addButton);
@@ -37,23 +33,44 @@ export class FinalNode extends ClassicPreset.Node<
     this.options = options;
   }
 
+  connectionAdded = (connection: ConnProps) => {
+    Object.keys(this.inputs).forEach((key) => {
+      if (this.inputs[key] && !(this.inputs[key] as any)?.connection && connection.targetInput === key) {
+        
+        (this.inputs[key] as any).connection = connection;
+        this.inputs[key]!.label = connection.sourceOutput;
+      }
+    });
+  };
+  connectionRemoved = (connection: ConnProps) => {
+    if (this.inputs[connection.targetInput]){
+      (this.inputs[connection.targetInput] as any).connection = undefined;
+    }    
+  };
+
   onAddClick = (change?: () => void) => {
-    console.log(this.inputs);
     const currentInputCount = Object.keys(this.inputs).length;
     const key = `input${currentInputCount}`;
-    
+
     const newInput = new ClassicPreset.Input(socket, key);
-    const newControl = new ClassicPreset.InputControl('text', { initial: '', change });
-    newInput.addControl(
-      newControl
-    );
+    const newControl = new ClassicPreset.InputControl('text', {
+      initial: '',
+      change,
+    });
+    newInput.addControl(newControl);
     this.addInput(key, newInput);
 
     this.height = INITIAL_HEIGHT + 30 * currentInputCount;
-    this.options?.area?.update('node', this.id );
+    this.options?.area?.update('node', this.id);
   };
 
   async data(inputs: { inputData: any[] }): any {
+    console.log(this.inputs);
+    console.log(inputs);
+    
+    
+
+    return 'data';
     // const { inputData } = inputs;
     // if (!inputData?.[0]) {
     //   return {};
