@@ -65,11 +65,6 @@ export class FinalNode extends ClassicPreset.Node<
   };
 
   async data(inputs: { inputData: any[] }): any {
-    console.log(this.inputs);
-    console.log(inputs);
-    
-    
-
     return 'data';
     // const { inputData } = inputs;
     // if (!inputData?.[0]) {

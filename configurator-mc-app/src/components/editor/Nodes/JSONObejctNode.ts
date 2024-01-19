@@ -1,6 +1,6 @@
 import { ClassicPreset } from 'rete';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
-import { EditorExtraOptions, TProductNode } from '../types';
+import { ConnProps, EditorExtraOptions, TProductNode } from '../types';
 
 const socket = new ClassicPreset.Socket('socket');
 
@@ -11,6 +11,7 @@ export class JSONObejctNode extends ClassicPreset.Node<
   TProductNode,
   {}
 > {
+  path: string = '';
   height = INITIAL_HEIGHT;
   width = INITIAL_WIDTH;
   options?: EditorExtraOptions;
@@ -22,15 +23,21 @@ export class JSONObejctNode extends ClassicPreset.Node<
 
     const jsonObject = new ClassicPreset.Input(socket, 'JSON object');
 
-    jsonObject.addControl(
-      new ClassicPreset.InputControl('text', { initial: '', change })
-    );
-
     this.addInput('jsonObject', jsonObject);
     this.options = options;
   }
 
   async data(inputs: { jsonObject: any[] }): any {
+    const connections = this.options?.editor?.getConnections();
+    const connectionToThisNode = connections?.find((connection) => {
+      return connection?.target === this.id;
+    });
+    
+    if (connectionToThisNode && this.inputs.jsonObject) {
+      this.inputs.jsonObject.label = connectionToThisNode.sourceOutput;
+      this.path = this.inputs.jsonObject.label;
+    }
+
     const { jsonObject } = inputs;
 
     const outputKeys = Object.keys(this.outputs);

@@ -8,9 +8,7 @@ export class ArrayNode extends ClassicPreset.Node<
   {
     array: ClassicPreset.Socket;
   },
-  {
-    item: ClassicPreset.Socket;
-  },
+  Record<string, ClassicPreset.Socket>,
   {
     index: ClassicPreset.InputControl<'number'>;
   }
@@ -37,9 +35,6 @@ export class ArrayNode extends ClassicPreset.Node<
         change: this.updateIndex,
       })
     );
-
-    const output = new ClassicPreset.Output(socket, 'Item');
-    this.addOutput('item', output);
 
     this.options = options;
   }
@@ -69,17 +64,25 @@ export class ArrayNode extends ClassicPreset.Node<
     const { array } = inputs;
 
     if (!array?.[0] || array?.[0]?.length === 0) {
-      return { item: {} };
+      return { [this.path]: {} };
     }
-    if (this.outputs.item) {
-      this.outputs.item.label = `ID: ${
+
+    if (Object.keys(this.outputs).length){ 
+      Object.keys(this.outputs).forEach((key) => {
+        this.removeOutput(key);
+      })
+    }
+    if (Object.keys(this.outputs).length === 0) {
+      const output = new ClassicPreset.Output(socket, this.path);
+      output.label = `ID: ${
         array[0][this.index]?.id
           ? array[0][this.index]?.id.toString().substring(0, 6) + '...'
           : ''
       }`;
+      this.addOutput(this.path, output);
     }
     this.options?.area?.update('node', this.id);
 
-    return { item: array[0][this.index] };
+    return { [this.path]: array[0][this.index] };
   }
 }
