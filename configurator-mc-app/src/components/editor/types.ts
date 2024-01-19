@@ -38,11 +38,11 @@ export type ConnProps =
   | Connection<QueryNode, ProductNode>
   | Connection<QueryNode, ArrayNode>
   | Connection<ProductNode, ArrayNode>
-  | Connection<JSONObejctNode, ArrayNode>
   | Connection<ProductNode, JSONObejctNode>
   | Connection<QueryNode, FinalNode>
   | Connection<ProductNode, FinalNode>
   | Connection<JSONObejctNode, FinalNode>
+  | Connection<JSONObejctNode, JSONObejctNode>
   | Connection<ArrayNode, JSONObejctNode>
   | Connection<ArrayNode, FinalNode>;
 

@@ -62,8 +62,8 @@ export async function createEditor(
 
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
-      ['JSON', () => new JSONObejctNode(undefined, process)],
-      ['Array', () => new ArrayNode(undefined, process)],
+      ['JSON', () => new JSONObejctNode({ editor, area }, process)],
+      ['Array', () => new ArrayNode({ editor, area }, process)],
       ['Product', () => new ProductNode(undefined, process)],
     ]),
   });
@@ -110,6 +110,16 @@ export async function createEditor(
   AreaExtensions.showInputControl(area);
 
   editor.addPipe((context) => {
+    if (context.type === 'connectioncreate') {
+      if (editor.getNode(context.data.source) instanceof JSONObejctNode && editor.getNode(context.data.target) instanceof JSONObejctNode) {
+        console.log(context.data);
+
+        if (typeof (editor.getNode(context.data.source) as JSONObejctNode).returningObject?.[context.data.sourceOutput] === 'object'){
+          return context;
+        }
+        return;
+      }
+    }
     if (context.type === 'connectioncreated') {
       if (editor.getNode(context.data.target) instanceof FinalNode) {
         (editor.getNode(context.data.target) as FinalNode).connectionAdded(
@@ -135,7 +145,7 @@ export async function createEditor(
     process
   );
   const arrayN = new ArrayNode({ editor, area }, process);
-  const json = new JSONObejctNode({ area }, process);
+  const json = new JSONObejctNode({ area, editor }, process);
   const final = new FinalNode({ editor, area }, process);
 
   await editor.addNode(query);
