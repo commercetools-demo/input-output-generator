@@ -6,7 +6,6 @@ import { Socket } from 'rete/_types/presets/classic';
 
 const socket = new ClassicPreset.Socket('socket');
 
-
 export class FinalNode extends ClassicPreset.Node<
   Record<string, Socket>,
   {},
@@ -35,17 +34,20 @@ export class FinalNode extends ClassicPreset.Node<
 
   connectionAdded = (connection: ConnProps) => {
     Object.keys(this.inputs).forEach((key) => {
-      if (this.inputs[key] && !(this.inputs[key] as any)?.connection && connection.targetInput === key) {
-        
+      if (
+        this.inputs[key] &&
+        !(this.inputs[key] as any)?.connection &&
+        connection.targetInput === key
+      ) {
         (this.inputs[key] as any).connection = connection;
         this.inputs[key]!.label = connection.sourceOutput;
       }
     });
   };
   connectionRemoved = (connection: ConnProps) => {
-    if (this.inputs[connection.targetInput]){
+    if (this.inputs[connection.targetInput]) {
       (this.inputs[connection.targetInput] as any).connection = undefined;
-    }    
+    }
   };
 
   onAddClick = (change?: () => void) => {

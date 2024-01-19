@@ -3,6 +3,7 @@ import { Product } from '@commercetools/platform-sdk';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
 import { EditorExtraOptions, TProductNode } from '../types';
 import { QueryDropdownControl } from '../controls/QueryDropdownControl';
+import { SampleDataResult } from '../../../hooks/sampler-connection/types';
 
 const socket = new ClassicPreset.Socket('socket');
 
@@ -30,18 +31,30 @@ export class QueryNode extends ClassicPreset.Node<
     entity.addControl(dropdownControl);
 
     this.addInput('entity', entity);
-    // this.addControl('dropdownControl', dropdownControl);
     this.options = options;
   }
 
   private onChange = async (value: string) => {
-    const queryResult = await this.options?.getSampleData(value);
+    const queryResult = await this.options?.getSampleData?.(value);
     if (!queryResult || queryResult.results.length === 0) {
       console.log('no results');
-
       return;
     }
 
+    this.updateOutputs(queryResult);
+
+    this.updateNode();
+  };
+
+  async data(): Promise<Record<string, any>> {
+    return this.returningObject;
+  }
+
+  private updateNode() {
+    this.options?.area?.update('node', this.id);
+  }
+
+  private updateOutputs(queryResult: SampleDataResult) {
     const queryResultKeys = Object.keys(queryResult);
     const outputKeys = Object.keys(this.outputs);
     const heightMultiplier = queryResultKeys.length;
@@ -54,11 +67,5 @@ export class QueryNode extends ClassicPreset.Node<
 
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
-
-    this.options?.area?.update('node', this.id);
-  };
-
-  async data(): Promise<Record<string, any>> {
-    return this.returningObject;
   }
 }

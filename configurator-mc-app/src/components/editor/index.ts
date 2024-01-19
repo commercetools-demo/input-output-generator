@@ -111,10 +111,14 @@ export async function createEditor(
 
   editor.addPipe((context) => {
     if (context.type === 'connectioncreate') {
-      if (editor.getNode(context.data.source) instanceof JSONObejctNode && editor.getNode(context.data.target) instanceof JSONObejctNode) {
-        console.log(context.data);
-
-        if (typeof (editor.getNode(context.data.source) as JSONObejctNode).returningObject?.[context.data.sourceOutput] === 'object'){
+      if (
+        editor.getNode(context.data.source) instanceof JSONObejctNode &&
+        editor.getNode(context.data.target) instanceof JSONObejctNode
+      ) {
+        if (
+          typeof (editor.getNode(context.data.source) as JSONObejctNode)
+            .returningObject?.[context.data.sourceOutput] === 'object'
+        ) {
           return context;
         }
         return;

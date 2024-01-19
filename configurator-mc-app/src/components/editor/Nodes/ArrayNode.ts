@@ -46,20 +46,11 @@ export class ArrayNode extends ClassicPreset.Node<
       this.index = value;
     }
     this.change?.();
-    this.options?.area?.update('node', this.id);
+    this.updateNode();
   };
 
   async data(inputs: { array: any[] }): any {
-    const connections = this.options?.editor?.getConnections();
-
-    const connectionToThisNode = connections?.find((connection) => {
-      return connection?.target === this.id;
-    });
-
-    if (connectionToThisNode && this.inputs.array) {
-      this.inputs.array.label = connectionToThisNode.sourceOutput;
-      this.path = this.inputs.array.label;
-    }
+    this.updateInputs();
 
     const { array } = inputs;
 
@@ -67,10 +58,21 @@ export class ArrayNode extends ClassicPreset.Node<
       return { [this.path]: {} };
     }
 
-    if (Object.keys(this.outputs).length){ 
+    this.updateOutputs(array);
+    this.updateNode();
+
+    return { [this.path]: array[0][this.index] };
+  }
+
+  private updateNode() {
+    this.options?.area?.update('node', this.id);
+  }
+
+  private updateOutputs(array: any[]) {
+    if (Object.keys(this.outputs).length) {
       Object.keys(this.outputs).forEach((key) => {
         this.removeOutput(key);
-      })
+      });
     }
     if (Object.keys(this.outputs).length === 0) {
       const output = new ClassicPreset.Output(socket, this.path);
@@ -81,8 +83,18 @@ export class ArrayNode extends ClassicPreset.Node<
       }`;
       this.addOutput(this.path, output);
     }
-    this.options?.area?.update('node', this.id);
+  }
 
-    return { [this.path]: array[0][this.index] };
+  private updateInputs() {
+    const connections = this.options?.editor?.getConnections();
+
+    const connectionToThisNode = connections?.find((connection) => {
+      return connection?.target === this.id;
+    });
+
+    if (connectionToThisNode && this.inputs.array) {
+      this.inputs.array.label = connectionToThisNode.sourceOutput;
+      this.path = this.inputs.array.label;
+    }
   }
 }
