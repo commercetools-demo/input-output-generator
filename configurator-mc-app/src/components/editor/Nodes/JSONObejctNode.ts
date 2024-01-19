@@ -28,18 +28,21 @@ export class JSONObejctNode extends ClassicPreset.Node<
   }
 
   async data(inputs: { jsonObject: any[] }): any {
-    const connections = this.options?.editor?.getConnections();
-    const connectionToThisNode = connections?.find((connection) => {
-      return connection?.target === this.id;
-    });
-    
-    if (connectionToThisNode && this.inputs.jsonObject) {
-      this.inputs.jsonObject.label = connectionToThisNode.sourceOutput;
-      this.path = this.inputs.jsonObject.label;
-    }
+    this.updateInputs();
 
     const { jsonObject } = inputs;
 
+    this.updateOutputs(jsonObject);
+    this.updateNode();
+
+    return this.returningObject;
+  }
+
+  private updateNode() {
+    this.options?.area?.update('node', this.id);
+  }
+
+  private updateOutputs(jsonObject: any[]) {
     const outputKeys = Object.keys(this.outputs);
     const jsonObjectKeys = Object.keys(jsonObject?.[0] || {});
     const heightMultiplier = jsonObjectKeys.length;
@@ -51,8 +54,17 @@ export class JSONObejctNode extends ClassicPreset.Node<
         this.returningObject[key] = jsonObject?.[0]?.[key];
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
-    this.options?.area?.update('node', this.id);
+  }
 
-    return this.returningObject;
+  private updateInputs() {
+    const connections = this.options?.editor?.getConnections();
+    const connectionToThisNode = connections?.find((connection) => {
+      return connection?.target === this.id;
+    });
+
+    if (connectionToThisNode && this.inputs.jsonObject) {
+      this.inputs.jsonObject.label = connectionToThisNode.sourceOutput;
+      this.path = this.inputs.jsonObject.label;
+    }
   }
 }
