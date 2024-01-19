@@ -44,6 +44,7 @@ export class JSONObejctNode extends ClassicPreset.Node<
         this.returningObject[key] = jsonObject?.[0]?.[key];
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
+    this.options?.area?.update('node', this.id);
 
     return this.returningObject;
   }
