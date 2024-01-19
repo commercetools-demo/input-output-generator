@@ -25,7 +25,7 @@ export class QueryNode extends ClassicPreset.Node<
     super('Query');
     const entity = new ClassicPreset.Input(socket, 'Entity name');
     const dropdownControl = new QueryDropdownControl(this.onChange);
-    dropdownControl.entity = options?.initial
+    dropdownControl.entity = options?.initial;
 
     entity.addControl(dropdownControl);
 

@@ -1,5 +1,5 @@
 import { Product } from '@commercetools/platform-sdk';
-import { ClassicPreset, GetSchemes } from 'rete';
+import { ClassicPreset, GetSchemes, NodeEditor } from 'rete';
 import { ProductNode } from './nodes/ProductNode';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
@@ -18,6 +18,7 @@ export interface EditorExtraOptions {
   // getProductData: (productId: string) => Promise<any>;
   getSampleData?: (entity: string) => Promise<SampleDataResult>;
   area?: AreaPlugin<Schemes, AreaExtra>;
+  editor?: NodeEditor<Schemes>;
   initial?: any;
 }
 
@@ -42,6 +43,7 @@ export type ConnProps =
   | Connection<QueryNode, FinalNode>
   | Connection<ProductNode, FinalNode>
   | Connection<JSONObejctNode, FinalNode>
+  | Connection<ArrayNode, JSONObejctNode>
   | Connection<ArrayNode, FinalNode>;
 
 export type Schemes = GetSchemes<Node, ConnProps>;

@@ -43,12 +43,17 @@ export async function createEditor(
 
     editor.getNodes().forEach((n) => engine.fetch(n.id));
 
-    const all = await Promise.all(
-      editor
-        .getNodes()
-        .filter((n) => n instanceof FinalNode)
-        .map((n) => engine.fetch(n.id))
-    );
+    try {
+      const all = await Promise.all(
+        editor
+          .getNodes()
+          .filter((n) => n instanceof FinalNode)
+          .map((n) => engine.fetch(n.id))
+      );
+      console.log({ all });
+    } catch (e) {
+      console.log('happend in process', e);
+    }
   }
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
@@ -111,16 +116,18 @@ export async function createEditor(
     return context;
   });
 
-  const query = new QueryNode({ ...options, initial: 'product', area }, process);
-  const arrayN = new ArrayNode(undefined, process);
-  const json = new JSONObejctNode(undefined, process);
-  const final = new FinalNode({ area }, process);
+  const query = new QueryNode(
+    { ...options, initial: 'product', area },
+    process
+  );
+  const arrayN = new ArrayNode({ editor, area }, process);
+  const json = new JSONObejctNode({ area }, process);
+  const final = new FinalNode({ editor, area }, process);
 
   await editor.addNode(query);
   await editor.addNode(arrayN);
   await editor.addNode(json);
   await editor.addNode(final);
-  
 
   // TODO: fix this
   // try {
@@ -134,10 +141,10 @@ export async function createEditor(
     timingFunction: (t) => t,
     async onTick() {
       await AreaExtensions.zoomAt(area, editor.getNodes());
-    }
+    },
   });
 
-  await arrange.layout({applier, });
+  await arrange.layout({ applier });
   AreaExtensions.zoomAt(area, editor.getNodes());
 
   return {
