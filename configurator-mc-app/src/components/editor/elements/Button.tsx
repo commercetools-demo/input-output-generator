@@ -1,7 +1,6 @@
 import { ButtonControl } from '../controls/ButtonControl';
 
 export function ButtonElement(props: { data: ButtonControl }) {
-
   return (
     <button
       onPointerDown={(e) => e.stopPropagation()}
