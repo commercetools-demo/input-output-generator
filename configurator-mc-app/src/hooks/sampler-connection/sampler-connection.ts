@@ -5696,7 +5696,7 @@ export const useSampler = () => {
   );
 
   const getData = async (entity: string): Promise<SampleDataResult> => {
-    const response = await fetch(`${samplerURL}/${entity}`, {
+    const response = await fetch(`${samplerURL}${entity}`, {
       headers: {
         'Access-Control-Allow-Origin': '',
       },
