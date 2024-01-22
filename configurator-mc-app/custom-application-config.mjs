@@ -16,19 +16,19 @@ const config = {
       url: '${env:APPLICATION_URL}',
     },
   },
-  additionalEnv: {
-    samplerURL: '${env:SAMPLER_URL}',
-  },
   headers: {
     csp: {
-      'connect-src': ['${env:SAMPLER_URL}/product'],
+      'connect-src': ['${env:SAMPLER_URL}'],
     },
+  },
+  additionalEnv: {
+    samplerURL: 'https://${env:SAMPLER_URL}',
   },
   oAuthScopes: {
     view: ['view_products'],
     manage: ['manage_products'],
   },
-  icon: '${path:@commercetools-frontend/assets/application-icons/rocket.svg}',
+  icon: '${path:@commercetools-frontend/assets/application-icons/export.svg}',
   mainMenuLink: {
     defaultLabel: 'Template starter',
     labelAllLocales: [],
