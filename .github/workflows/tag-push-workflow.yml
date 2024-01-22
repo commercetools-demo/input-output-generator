@@ -27,14 +27,14 @@ jobs:
       run: |
         TAG_NAME=$(echo "${{ github.ref }}" | sed 's|refs/tags/||')
         echo $TAG_NAME
-        UPDTAE_DRAFT_RESPONSE=$(curl -X POST --header "Authorization: Bearer $ACCESS_TOKEN" --header "Content-Type: application/json" --data-raw '{"version" : $DRAFT_VERSION ,"actions" : [ {"action" : "setRepository","url": "git@github.com:commercetools-demo/input-output-generator.git","tag": "$TAG_NAME"  } ]}' "https://connect.us-central1.gcp.commercetools.com/connectors/drafts/key=in-out-generator")
+        UPDTAE_DRAFT_RESPONSE=$(curl -X POST --header "Authorization: Bearer $ACCESS_TOKEN" --header "Content-Type: application/json" --data-raw "{\"version\" : $DRAFT_VERSION ,\"actions\" : [ {\"action\" : \"setRepository\",\"url\": \"git@github.com:commercetools-demo/input-output-generator.git\",\"tag\": \"$TAG_NAME\"  } ]}" "https://connect.us-central1.gcp.commercetools.com/connectors/drafts/key=in-out-generator")
         echo $UPDTAE_DRAFT_RESPONSE
         DRAFT_VERSION=$(echo $UPDTAE_DRAFT_RESPONSE | jq -r '.version')
         echo "DRAFT_VERSION=$DRAFT_VERSION" >> $GITHUB_ENV
 
     - name: Previewable draft
       run: |
-        UPDTAE_DRAFT_RESPONSE=$(curl -X POST --header "Authorization: Bearer $ACCESS_TOKEN" --header "Content-Type: application/json" --data '{"version" : $DRAFT_VERSION,"actions" : [ {"action" : "updatePreviewable"} ]}' "https://connect.us-central1.gcp.commercetools.com/connectors/drafts/key=in-out-generator")
+        UPDTAE_DRAFT_RESPONSE=$(curl -X POST --header "Authorization: Bearer $ACCESS_TOKEN" --header "Content-Type: application/json" --data "{\"version\" : $DRAFT_VERSION,\"actions\" : [ {\"action\" : \"updatePreviewable\"} ]}" "https://connect.us-central1.gcp.commercetools.com/connectors/drafts/key=in-out-generator")
         echo $UPDTAE_DRAFT_RESPONSE
         DRAFT_VERSION=$(echo $UPDTAE_DRAFT_RESPONSE | jq -r '.version')
         echo "DRAFT_VERSION=$DRAFT_VERSION" >> $GITHUB_ENV
