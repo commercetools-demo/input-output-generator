@@ -17,7 +17,14 @@ import {
   Presets as ContextMenuPresets,
 } from 'rete-context-menu-plugin';
 import { ProductNode } from './nodes/ProductNode';
-import { EditorExtraOptions, Schemes, AreaExtra, Connection } from './types';
+import {
+  EditorExtraOptions,
+  Schemes,
+  AreaExtra,
+  Connection,
+  Node,
+  ConnProps,
+} from './types';
 import { JSONObejctNode } from './nodes/JSONObejctNode';
 import { QueryNode } from './nodes/QueryNode';
 import { ArrayNode } from './nodes/ArrayNode';
@@ -38,19 +45,121 @@ export async function createEditor(
   const arrange = new AutoArrangePlugin<Schemes>();
   const engine = new DataflowEngine<Schemes>();
 
+  function extractByPaths2(json: any, paths: string[]) {
+    const result = {};
+
+    function extract(currentPart: any, currentResult: any, remainingPath: string[]) {
+        if (remainingPath.length === 0) {
+            return;
+        }
+
+        let nextKey = remainingPath[0];
+        let nextPath = remainingPath.slice(1);
+
+        if (Array.isArray(currentPart)) {
+            currentPart.forEach((item, index) => {
+                if (!currentResult[index]) currentResult[index] = {};
+                extract(item, currentResult[index], remainingPath);
+            });
+        } else if (typeof currentPart[nextKey] !== 'undefined') {
+            if (nextPath.length === 0) {
+                currentResult[nextKey] = currentPart[nextKey];
+            } else {
+                currentResult[nextKey] = currentResult[nextKey] || (Array.isArray(currentPart[nextKey]) ? [] : {});
+                extract(currentPart[nextKey], currentResult[nextKey], nextPath);
+            }
+        }
+    }
+
+    paths.forEach(path => {
+        const parts = path.split('.');
+        extract(json, result, parts);
+    });
+
+    return result;
+}
+
+  // function extractByPaths(json: any, paths: string[]) {
+  //   const result: any = {};
+  //   paths.forEach((path) => {
+  //     const parts = path.split('.');
+  //     let currentPart = json;
+  //     let currentResult = result;
+
+  //     for (let i = 0; i < parts.length; i++) {
+  //       if (currentPart[parts[i]] === undefined) {
+  //         break;
+  //       }
+  //       currentPart = currentPart[parts[i]];
+
+  //       if (i < parts.length - 1) {
+  //         currentResult[parts[i]] = currentResult[parts[i]] || {};
+  //         currentResult = currentResult[parts[i]];
+  //       } else {
+  //         currentResult[parts[i]] = currentPart;
+  //       }
+  //     }
+  //   });
+  //   return result;
+  // }
+  const getParentPath = (node: Node, allConnections: ConnProps[]): string => {
+    const connectionsToCurrentNode = allConnections.filter(
+      (c) => c.target === node.id
+    );
+
+    let currentPath = node.path + '.';
+
+    if (node instanceof QueryNode) {
+      return '';
+    }
+
+    if (node instanceof ArrayNode) {
+      currentPath = '';
+    }
+
+    if (connectionsToCurrentNode.length === 0) {
+      return currentPath;
+    }
+    const parent = editor.getNode(connectionsToCurrentNode[0].source);
+
+    return getParentPath(parent, allConnections) + currentPath;
+  };
+
+  const doAMap = (n: FinalNode, allConnections: ConnProps[]): string[] => {
+    const paths: string[] = [];
+    const connectionsToCurrentNode = allConnections
+      .filter((c) => c.target === n.id)
+      .forEach((c) => {
+        const parent = editor.getNode(c.source);
+        const paretnPath = getParentPath(parent, allConnections);
+
+        paths.push(paretnPath + c.sourceOutput);
+      });
+    return paths;
+  };
   async function process() {
     engine.reset();
 
     editor.getNodes().forEach((n) => engine.fetch(n.id));
 
+    const allConnections = editor.getConnections();
     try {
       const all = await Promise.all(
         editor
           .getNodes()
           .filter((n) => n instanceof FinalNode)
-          .map((n) => engine.fetch(n.id))
+          .map((n) => doAMap(n as FinalNode, allConnections))
       );
-      console.log({ all });
+      console.log(all);
+
+      const aaa: QueryNode = editor
+          .getNodes()
+          .find((n) => n instanceof QueryNode);
+          console.log(aaa);
+          
+
+      console.log(extractByPaths2(aaa.returningObject, all.reduce((a, b) => [...a, ...b], [])));
+      
     } catch (e) {
       console.log('happend in process', e);
     }
