@@ -9,7 +9,7 @@ const socket = new ClassicPreset.Socket('socket');
 
 // TODO: make a generic class for all CT entities
 // TODO: generic class can also accept graph ql query
-export class QueryNode extends ClassicPreset.Node<
+export class SamplerNode extends ClassicPreset.Node<
   {
     entity: ClassicPreset.Socket;
   },

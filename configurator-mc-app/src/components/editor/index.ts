@@ -19,7 +19,7 @@ import {
 import { ProductNode } from './nodes/ProductNode';
 import { EditorExtraOptions, Schemes, AreaExtra, Connection } from './types';
 import { JSONObejctNode } from './nodes/JSONObejctNode';
-import { QueryNode } from './nodes/QueryNode';
+import { SamplerNode } from './Nodes/SamplerNode';
 import { ArrayNode } from './nodes/ArrayNode';
 import { FinalNode } from './nodes/FinalNode';
 import { QueryDropdownElement } from './elements/QueryDropDown';
@@ -144,7 +144,7 @@ export async function createEditor(
     return context;
   });
 
-  const query = new QueryNode(
+  const query = new SamplerNode(
     { ...options, initial: 'product', area },
     process
   );

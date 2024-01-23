@@ -4,7 +4,7 @@ import { ProductNode } from './nodes/ProductNode';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
 import { JSONObejctNode } from './nodes/JSONObejctNode';
-import { QueryNode } from './nodes/QueryNode';
+import { SamplerNode } from './Nodes/SamplerNode';
 import { SampleDataResult } from '../../hooks/sampler-connection/types';
 import { ArrayNode } from './nodes/ArrayNode';
 import { FinalNode } from './nodes/FinalNode';
@@ -23,7 +23,7 @@ export interface EditorExtraOptions {
 }
 
 export type Node =
-  | QueryNode
+  | SamplerNode
   | ProductNode
   | JSONObejctNode
   | ArrayNode
@@ -34,12 +34,12 @@ export class Connection<
 > extends ClassicPreset.Connection<A, B> {}
 
 export type ConnProps =
-  | Connection<QueryNode, JSONObejctNode>
-  | Connection<QueryNode, ProductNode>
-  | Connection<QueryNode, ArrayNode>
+  | Connection<SamplerNode, JSONObejctNode>
+  | Connection<SamplerNode, ProductNode>
+  | Connection<SamplerNode, ArrayNode>
   | Connection<ProductNode, ArrayNode>
   | Connection<ProductNode, JSONObejctNode>
-  | Connection<QueryNode, FinalNode>
+  | Connection<SamplerNode, FinalNode>
   | Connection<ProductNode, FinalNode>
   | Connection<JSONObejctNode, FinalNode>
   | Connection<JSONObejctNode, JSONObejctNode>
