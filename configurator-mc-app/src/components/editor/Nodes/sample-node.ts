@@ -37,17 +37,31 @@ export class SamplerNode extends ClassicPreset.Node<
     this.options = options;
   }
 
+  addToExpands(expand: string) {
+    this.expands.push(expand);
+    return this.onChangeExpands();
+  }
+
+  removeFromExpands(expand: string) {
+    this.expands = this.expands.filter((e) => e !== expand);
+    return this.onChangeExpands();
+  }
+
   private onDropdownChange = async (value: string) => {
     await this.getData(value);
   };
 
-  private onAddExpand = () => {
+  private onChangeExpands = async () => {
     // @ts-ignore
     if (this.inputs['entity']?.control?._entity) {
+      let body = {};
+      if (this.expands.length > 0) {
+        body = {
+          expand: this.expands,
+        };
+      }
       // @ts-ignore
-      this.getData(this.inputs['entity']?.control._entity, {
-        expand: this.expands,
-      });
+      return this.getData(this.inputs['entity']?.control._entity, body);
     }
   };
 
@@ -71,7 +85,7 @@ export class SamplerNode extends ClassicPreset.Node<
     this.options?.area?.update('node', this.id);
     // const nodes = this.options?.editor?.getNodes();
 
-    // this.options?.engine?.reset();
+    this.options?.engine?.reset();
     // nodes?.forEach((node) => {
     //    this.options?.area?.update('node', node.id);
     // });

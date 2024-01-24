@@ -18,14 +18,16 @@ import {
 } from 'rete-context-menu-plugin';
 import { ProductNode } from './nodes/ProductNode';
 import { EditorExtraOptions, Schemes, AreaExtra, Connection } from './types';
-import { JSONObejctNode } from './nodes/JSONObejctNode';
-import { SamplerNode } from './Nodes/SamplerNode';
-import { ArrayNode } from './nodes/ArrayNode';
-import { FinalNode } from './nodes/FinalNode';
+import { JSONObejctNode } from './nodes/json-object-node';
+import { SamplerNode } from './nodes/sample-node';
+import { ArrayNode } from './nodes/array-node';
+import { FinalNode } from './nodes/final-node';
 import { QueryDropdownElement } from './elements/QueryDropDown';
 import { QueryDropdownControl } from './controls/QueryDropdownControl';
 import { ButtonControl } from './controls/ButtonControl';
 import { ButtonElement } from './elements/Button';
+import { CheckboxControl } from './controls/CheckboxControl';
+import { CheckboxElement } from './elements/Checkbox';
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -83,6 +85,8 @@ export async function createEditor(
         control(data) {
           if ((data.payload as unknown) instanceof QueryDropdownControl) {
             return QueryDropdownElement as any;
+          } else if ((data.payload as unknown) instanceof CheckboxControl) {
+            return CheckboxElement as any;
           } else if ((data.payload as unknown) instanceof ButtonControl) {
             return ButtonElement as any;
           } else {
