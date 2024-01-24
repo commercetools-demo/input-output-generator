@@ -19,7 +19,7 @@ export class JSONObejctNode extends ClassicPreset.Node<
   change?: () => void;
 
   constructor(options?: EditorExtraOptions, change?: () => void) {
-    super('JSON OBJECT');
+    super('JSON object');
 
     const jsonObject = new ClassicPreset.Input(socket, 'JSON object');
 
@@ -51,9 +51,11 @@ export class JSONObejctNode extends ClassicPreset.Node<
     jsonObjectKeys
       .filter((key) => !outputKeys.includes(key))
       .forEach((key) => {
-        this.returningObject[key] = jsonObject?.[0]?.[key];
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
+    jsonObjectKeys.forEach((key) => {
+      this.returningObject[key] = jsonObject?.[0]?.[key];
+    });
   }
 
   private updateInputs() {

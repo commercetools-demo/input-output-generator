@@ -145,7 +145,7 @@ export async function createEditor(
   });
 
   const query = new SamplerNode(
-    { ...options, initial: 'product', area },
+    { ...options, initial: 'products', area, editor, engine },
     process
   );
   const arrayN = new ArrayNode({ editor, area }, process);

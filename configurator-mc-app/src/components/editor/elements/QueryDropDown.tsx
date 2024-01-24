@@ -13,8 +13,9 @@ export function QueryDropdownElement(props: { data: QueryDropdownControl }) {
   }, []);
   return (
     <select onChange={onChange}>
-      <option value="product">Product</option>
-      <option value="customer">Customer</option>
+      <option value="products">Products</option>
+      <option value="orders">Orders</option>
+      <option value="payments">Payments</option>
     </select>
   );
 }

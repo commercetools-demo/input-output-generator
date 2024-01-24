@@ -27,9 +27,10 @@ const Channels = (props: TChannelsProps) => {
   //   setProductId(pId);
   //   return getProduct();
   // }, []);
-  const getSampleData = useCallback(async (entity: string) => {
-    return getData(entity);
+  const getSampleData = useCallback(async (entity: string, body?: any) => {
+    return getData(entity, body);
   }, []);
+
   const handleEditor = useCallback(
     (el) => createEditor({ getSampleData }, el),
     []
