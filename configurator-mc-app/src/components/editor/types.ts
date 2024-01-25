@@ -1,13 +1,13 @@
 import { Product } from '@commercetools/platform-sdk';
 import { ClassicPreset, GetSchemes, NodeEditor } from 'rete';
-import { ProductNode } from './nodes/ProductNode';
+import { ProductNode } from './editor-nodes/ProductNode';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
-import { JSONObejctNode } from './nodes/json-object-node';
-import { SamplerNode } from './nodes/sample-node';
+import { JSONObejctNode } from './editor-nodes/json-object-node';
+import { SamplerNode } from './editor-nodes/sample-node';
 import { SampleDataResult } from '../../hooks/sampler-connection/types';
-import { ArrayNode } from './nodes/array-node';
-import { FinalNode } from './nodes/final-node';
+import { ArrayNode } from './editor-nodes/array-node';
+import { FinalNode } from './editor-nodes/final-node';
 import { AreaPlugin } from 'rete-area-plugin';
 import { DataflowEngine } from 'rete-engine';
 import { MinimapExtra } from 'rete-minimap-plugin';

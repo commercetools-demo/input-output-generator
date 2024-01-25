@@ -1,8 +1,8 @@
 import { NodeEditor } from 'rete';
-import { ArrayNode } from './nodes/array-node';
-import { SamplerNode } from './nodes/sample-node';
+import { ArrayNode } from './editor-nodes/array-node';
+import { SamplerNode } from './editor-nodes/sample-node';
 import { ConnProps, Schemes } from './types';
-import { FinalNode } from './nodes/final-node';
+import { FinalNode } from './editor-nodes/final-node';
 
 export const extractDataByPaths = (json: any, paths: string[]) => {
   const result = {};
