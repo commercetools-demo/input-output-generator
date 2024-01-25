@@ -68,3 +68,37 @@ deployAs:
           required: true
         - key: CTP_SCOPE
           description: scope of an API Client for the commercetools Composable Commerce Project
+  - name: exporter-job
+    applicationType: job
+    endpoint: /exporter-job
+    properties:
+      schedule: "*/5 * * * *"
+    configuration:
+      standardConfiguration:
+        - key: CTP_PROJECT_KEY
+          description: Project key of the commercetools Composable Commerce Project
+          required: true
+          default: 'default-key'
+        - key: CTP_REGION
+          description: Region where the commercetools Composable Commerce Project is hosted
+          required: true
+        - key: STORAGE_CONTAINER
+          description: storage container
+          required: true
+          default: 'generator_container'
+        - key: STORAGE_KEY
+          description: storage key
+          required: true
+          default: 'stored_paths'
+        - key: WEBHOOK_URL
+          description: webhook url
+          required: true
+      securedConfiguration:
+        - key: CTP_CLIENT_ID
+          description: client_id of an API Client for the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_CLIENT_SECRET
+          description: secret of an API Client for the commercetools Composable Commerce Project
+          required: true
+        - key: CTP_SCOPE
+          description: scope of an API Client for the commercetools Composable Commerce Project
