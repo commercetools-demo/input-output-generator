@@ -18,6 +18,7 @@ describe('authenticate', () => {
       }),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('../src/client/create.client').createApiRoot.mockReturnValue(
       mockApiRoot
     );
