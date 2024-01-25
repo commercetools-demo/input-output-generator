@@ -21,4 +21,8 @@ export default defineMessages({
     id: 'Welcome.preview',
     defaultMessage: 'Output preview',
   },
+  completed: {
+    id: 'Welcome.completed',
+    defaultMessage: 'Configuration saved',
+  },
 });

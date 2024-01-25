@@ -53,13 +53,13 @@ export async function createEditor(
           .map((n) => getAllPaths(n, editor))
       );
       const root = getSamplerRoot(editor);
+      const paths = all.reduce((a, b) => [...a, ...b], []);
+      options.setPaths?.(paths);
+
       if (root) {
         options.setPreviewData?.(
           JSON.stringify(
-            extractDataByPaths(
-              root!.returningObject,
-              all.reduce((a, b) => [...a, ...b], [])
-            ),
+            extractDataByPaths(root!.returningObject, paths),
             null,
             2
           )

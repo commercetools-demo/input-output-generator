@@ -23,6 +23,8 @@ const config = {
   },
   additionalEnv: {
     samplerURL: 'https://${env:SAMPLER_URL}',
+    storageKey: '${env:STORAGE_KEY}',
+    storageContainer: '${env:STORAGE_CONTAINER}',
   },
   oAuthScopes: {
     view: ['view_products'],

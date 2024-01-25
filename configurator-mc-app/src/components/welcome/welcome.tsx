@@ -1,4 +1,4 @@
-import { useCallback, type ReactNode, useState } from 'react';
+import { useCallback, type ReactNode, useState, useEffect } from 'react';
 import Spacings from '@commercetools-uikit/spacings';
 import Text from '@commercetools-uikit/text';
 import messages from './messages';
@@ -10,6 +10,9 @@ import PrimaryButton from '@commercetools-uikit/primary-button';
 import SecondaryButton from '@commercetools-uikit/secondary-button';
 import { useIntl } from 'react-intl';
 import CollapsiblePanel from '@commercetools-uikit/collapsible-panel';
+import { useCustomObjectUpdater } from '../../hooks/use-custom-object-connector/use-custom-object-connector';
+import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
+import { ContentNotification } from '@commercetools-uikit/notifications';
 
 type TWrapWithProps = {
   children: ReactNode;
@@ -24,19 +27,44 @@ WrapWith.displayName = 'WrapWith';
 const Welcome = () => {
   const intl = useIntl();
   const { getData } = useSampler();
+  const { execute } = useCustomObjectUpdater();
+  const { storageContainer, storageKey } = useApplicationContext<{
+    storageKey: string;
+    storageContainer: string;
+  }>((context: any) => context.environment);
+
   const [previewData, setPreviewData] = useState<string>('');
+  const [paths, setPaths] = useState<string[]>([]);
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   const getSampleData = useCallback(async (entity: string, body?: any) => {
     return getData(entity, body);
   }, []);
 
   const handleEditor = useCallback(
-    (el) => createEditor({ getSampleData, setPreviewData }, el),
+    (el) => createEditor({ getSampleData, setPreviewData, setPaths }, el),
     []
   );
 
   const [ref] = useRete(handleEditor);
 
+  const storePaths = async () => {
+    await execute({
+      draft: {
+        container: storageContainer,
+        key: storageKey,
+        value: JSON.stringify(paths),
+      },
+    });
+    setIsNotificationVisible(true);
+    setPaths([]);
+  };
+
+  useEffect(() => {
+    return () => {
+      setTimeout(() => setIsNotificationVisible(false), 2000);
+    }
+  }, [isNotificationVisible])
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <Spacings.Stack scale="m">
@@ -46,11 +74,19 @@ const Welcome = () => {
           <Text.Body intlMessage={messages.body}></Text.Body>
 
           <SpacingsInline scale="m" alignItems="center">
-            <PrimaryButton label={intl.formatMessage(messages.save)} />{' '}
+            <PrimaryButton
+              label={intl.formatMessage(messages.save)}
+              onClick={storePaths}
+            />
             <SecondaryButton label={intl.formatMessage(messages.cancel)} />
           </SpacingsInline>
         </SpacingsInline>
       </Spacings.Stack>
+      {isNotificationVisible && (
+        <ContentNotification type="info">
+          {intl.formatMessage(messages.completed)}
+        </ContentNotification>
+      )}
 
       <div style={{ width: '100%', height: '100%', padding: '10px 0' }}>
         <div
