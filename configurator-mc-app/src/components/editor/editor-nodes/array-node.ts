@@ -1,6 +1,6 @@
 import { ClassicPreset } from 'rete';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
-import { EditorExtraOptions, TProductNode } from '../types';
+import { EditorExtraOptions } from '../types';
 
 const socket = new ClassicPreset.Socket('socket');
 

@@ -19,7 +19,11 @@ export type TProductNode = {
 export interface EditorExtraOptions {
   getSampleData?: (entity: string, body?: any) => Promise<SampleDataResult>;
   setPreviewData?: (json: string) => void;
-  setPaths?: (paths: string[]) => void;
+  exportConfig?: (config: {
+    entity: string;
+    paths: string[];
+    expands?: string[];
+  }) => void;
   area?: AreaPlugin<Schemes, AreaExtra>;
   editor?: NodeEditor<Schemes>;
   engine?: DataflowEngine<Schemes>;

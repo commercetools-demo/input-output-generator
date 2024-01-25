@@ -1,7 +1,7 @@
 import { ClassicPreset } from 'rete';
 import { Product } from '@commercetools/platform-sdk';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
-import { EditorExtraOptions, TProductNode } from '../types';
+import { EditorExtraOptions } from '../types';
 import { QueryDropdownControl } from '../controls/QueryDropdownControl';
 import { SampleDataResult } from '../../../hooks/sampler-connection/types';
 

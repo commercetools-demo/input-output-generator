@@ -1,6 +1,6 @@
 import { ClassicPreset } from 'rete';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
-import { ConnProps, EditorExtraOptions, TProductNode } from '../types';
+import { ConnProps, EditorExtraOptions } from '../types';
 import { ButtonControl } from '../controls/ButtonControl';
 import { Socket } from 'rete/_types/presets/classic';
 

@@ -54,7 +54,12 @@ export async function createEditor(
       );
       const root = getSamplerRoot(editor);
       const paths = all.reduce((a, b) => [...a, ...b], []);
-      options.setPaths?.(paths);
+
+      options.exportConfig?.({
+        entity: root?.inputs.entity?.control?._entity,
+        expands: root?.expands,
+        paths,
+      });
 
       if (root) {
         options.setPreviewData?.(

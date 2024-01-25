@@ -34,7 +34,11 @@ const Welcome = () => {
   }>((context: any) => context.environment);
 
   const [previewData, setPreviewData] = useState<string>('');
-  const [paths, setPaths] = useState<string[]>([]);
+  const [config, setConfig] = useState<{
+    paths: string[];
+    entity: string;
+    expands?: string[];
+  }>();
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   const getSampleData = useCallback(async (entity: string, body?: any) => {
@@ -42,7 +46,11 @@ const Welcome = () => {
   }, []);
 
   const handleEditor = useCallback(
-    (el) => createEditor({ getSampleData, setPreviewData, setPaths }, el),
+    (el) =>
+      createEditor(
+        { getSampleData, setPreviewData, exportConfig: setConfig },
+        el
+      ),
     []
   );
 
@@ -53,18 +61,18 @@ const Welcome = () => {
       draft: {
         container: storageContainer,
         key: storageKey,
-        value: JSON.stringify(paths),
+        value: JSON.stringify(config),
       },
     });
     setIsNotificationVisible(true);
-    setPaths([]);
+    setConfig({});
   };
 
   useEffect(() => {
     return () => {
       setTimeout(() => setIsNotificationVisible(false), 2000);
-    }
-  }, [isNotificationVisible])
+    };
+  }, [isNotificationVisible]);
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <Spacings.Stack scale="m">
