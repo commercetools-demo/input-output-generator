@@ -24,13 +24,14 @@ WrapWith.displayName = 'WrapWith';
 const Welcome = () => {
   const intl = useIntl();
   const { getData } = useSampler();
+  const [previewData, setPreviewData] = useState<string>('');
 
   const getSampleData = useCallback(async (entity: string, body?: any) => {
     return getData(entity, body);
   }, []);
 
   const handleEditor = useCallback(
-    (el) => createEditor({ getSampleData }, el),
+    (el) => createEditor({ getSampleData, setPreviewData }, el),
     []
   );
 
@@ -53,16 +54,17 @@ const Welcome = () => {
 
       <div style={{ width: '100%', height: '100%', padding: '10px 0' }}>
         <div
-          style={{ width: '100%', height: '80%', border: '1px solid black' }}
+          style={{ width: '100%', height: '600px', border: '1px solid black' }}
         >
           <div
             ref={ref}
             style={{ width: '100%', height: '100%', position: 'relative' }}
           ></div>
         </div>
-      <CollapsiblePanel header={intl.formatMessage(messages.preview)}>
-        <pre>Hello World</pre>
-      </CollapsiblePanel>
+
+        <CollapsiblePanel header={intl.formatMessage(messages.preview)}>
+          <pre>{previewData}</pre>
+        </CollapsiblePanel>
       </div>
     </div>
   );

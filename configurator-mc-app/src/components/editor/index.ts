@@ -11,7 +11,7 @@ import {
 } from 'rete-connection-plugin';
 import {
   ContextMenuPlugin,
-  Presets as ContextMenuPresets
+  Presets as ContextMenuPresets,
 } from 'rete-context-menu-plugin';
 import { DataflowEngine } from 'rete-engine';
 import { Presets, ReactPlugin } from 'rete-react-plugin';
@@ -27,6 +27,7 @@ import { JSONObejctNode } from './nodes/json-object-node';
 import { SamplerNode } from './nodes/sample-node';
 import { AreaExtra, EditorExtraOptions, Schemes } from './types';
 import { MinimapPlugin } from 'rete-minimap-plugin';
+import { extractDataByPaths, getAllPaths, getSamplerRoot } from './utils';
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -49,9 +50,21 @@ export async function createEditor(
         editor
           .getNodes()
           .filter((n) => n instanceof FinalNode)
-          .map((n) => engine.fetch(n.id))
+          .map((n) => getAllPaths(n, editor))
       );
-      console.log({ all });
+      const root = getSamplerRoot(editor);
+      if (root) {
+        options.setPreviewData?.(
+          JSON.stringify(
+            extractDataByPaths(
+              root!.returningObject,
+              all.reduce((a, b) => [...a, ...b], [])
+            ),
+            null,
+            2
+          )
+        );
+      }
     } catch (e) {
       console.log('happend in process', e);
     }
@@ -78,13 +91,6 @@ export async function createEditor(
     // @ts-ignore
     Presets.classic.setup({
       customize: {
-        // node(context) {
-
-        //   if (context.payload.label === 'Query') {
-        //     return CustomNode;
-        //   }
-        //   return Presets.classic.Node;
-        // },
         control(data) {
           if ((data.payload as unknown) instanceof QueryDropdownControl) {
             return QueryDropdownElement as any;
@@ -102,7 +108,6 @@ export async function createEditor(
   render.addPreset(Presets.contextMenu.setup());
   render.addPreset(Presets.classic.setup());
   render.addPreset(Presets.minimap.setup({ size: 200 }));
-
 
   connection.addPreset(ConnectionPresets.classic.setup());
 

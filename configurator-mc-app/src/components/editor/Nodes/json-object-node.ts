@@ -1,10 +1,8 @@
 import { ClassicPreset } from 'rete';
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
-import { ConnProps, EditorExtraOptions, TProductNode } from '../types';
+import { EditorExtraOptions, TProductNode } from '../types';
 import { CheckboxControl } from '../controls/CheckboxControl';
-import { ArrayNode } from './array-node';
-import { SamplerNode } from './sample-node';
-import { getFullPath, getSamplerRoot } from '../utils';
+import { getFullPathExceptRoot, getSamplerRoot } from '../utils';
 
 const socket = new ClassicPreset.Socket('socket');
 
@@ -52,7 +50,7 @@ export class JSONObejctNode extends ClassicPreset.Node<
 
   onChange = async (checked: boolean) => {
     const root = getSamplerRoot(this.options?.editor!);
-    const fullPath = getFullPath(this.id, this.options?.editor!);
+    const fullPath = getFullPathExceptRoot(this.id, this.options?.editor!);
 
     if (root) {
       if (checked) {

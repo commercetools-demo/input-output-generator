@@ -10,16 +10,15 @@ import { ArrayNode } from './nodes/array-node';
 import { FinalNode } from './nodes/final-node';
 import { AreaPlugin } from 'rete-area-plugin';
 import { DataflowEngine } from 'rete-engine';
-import { MinimapExtra } from "rete-minimap-plugin";
+import { MinimapExtra } from 'rete-minimap-plugin';
 
 export type TProductNode = {
   [Property in keyof Product]: ClassicPreset.Socket;
 };
 
 export interface EditorExtraOptions {
-  // TODO: fix type
-  // getProductData: (productId: string) => Promise<any>;
   getSampleData?: (entity: string, body?: any) => Promise<SampleDataResult>;
+  setPreviewData?: (json: string) => void;
   area?: AreaPlugin<Schemes, AreaExtra>;
   editor?: NodeEditor<Schemes>;
   engine?: DataflowEngine<Schemes>;

@@ -7,22 +7,18 @@ export default defineMessages({
   },
   body: {
     id: 'Welcome.body',
-    defaultMessage:
-      'Create the configuration for your custom exporter.',
+    defaultMessage: 'Create the configuration for your custom exporter.',
   },
   save: {
     id: 'Welcome.save',
-    defaultMessage:
-      'Save'
+    defaultMessage: 'Save',
   },
   cancel: {
     id: 'Welcome.cancel',
-    defaultMessage:
-      'cancel'
+    defaultMessage: 'cancel',
   },
   preview: {
     id: 'Welcome.preview',
-    defaultMessage:
-      'Output preview'
+    defaultMessage: 'Output preview',
   },
 });
