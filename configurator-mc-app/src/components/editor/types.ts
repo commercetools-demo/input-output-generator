@@ -10,6 +10,8 @@ import { ArrayNode } from './nodes/array-node';
 import { FinalNode } from './nodes/final-node';
 import { AreaPlugin } from 'rete-area-plugin';
 import { DataflowEngine } from 'rete-engine';
+import { MinimapExtra } from "rete-minimap-plugin";
+
 export type TProductNode = {
   [Property in keyof Product]: ClassicPreset.Socket;
 };
@@ -50,4 +52,4 @@ export type ConnProps =
 
 export type Schemes = GetSchemes<Node, ConnProps>;
 
-export type AreaExtra = ReactArea2D<any> | ContextMenuExtra;
+export type AreaExtra = ReactArea2D<any> | ContextMenuExtra | MinimapExtra;

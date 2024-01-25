@@ -1,14 +1,15 @@
-import type { ReactNode } from 'react';
-import { useRouteMatch, Link as RouterLink } from 'react-router-dom';
-import { useIntl } from 'react-intl';
-import Constraints from '@commercetools-uikit/constraints';
-import Grid from '@commercetools-uikit/grid';
-import { AngleRightIcon } from '@commercetools-uikit/icons';
+import { useCallback, type ReactNode, useState } from 'react';
 import Spacings from '@commercetools-uikit/spacings';
 import Text from '@commercetools-uikit/text';
 import messages from './messages';
-import styles from './welcome.module.css';
-import WebDeveloperSvg from './web-developer.svg';
+import { useRete } from 'rete-react-plugin';
+import { useSampler } from '../../hooks/sampler-connection';
+import { createEditor } from '../editor';
+import SpacingsInline from '@commercetools-uikit/spacings-inline';
+import PrimaryButton from '@commercetools-uikit/primary-button';
+import SecondaryButton from '@commercetools-uikit/secondary-button';
+import { useIntl } from 'react-intl';
+import CollapsiblePanel from '@commercetools-uikit/collapsible-panel';
 
 type TWrapWithProps = {
   children: ReactNode;
@@ -20,97 +21,50 @@ const WrapWith = (props: TWrapWithProps) => (
 );
 WrapWith.displayName = 'WrapWith';
 
-type TInfoCardProps = {
-  title: string;
-  content: string;
-  linkTo: string;
-  isExternal?: boolean;
-};
-
-const InfoCard = (props: TInfoCardProps) => (
-  <Grid.Item>
-    <div className={styles.infoCard}>
-      <Spacings.Stack scale="m">
-        <Text.Headline as="h3">
-          <WrapWith
-            condition={true}
-            wrapper={(children) =>
-              props.isExternal ? (
-                <a
-                  className={styles.infoCardLink}
-                  href={props.linkTo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {children}
-                </a>
-              ) : (
-                <RouterLink className={styles.infoCardLink} to={props.linkTo}>
-                  {children}
-                </RouterLink>
-              )
-            }
-          >
-            <Spacings.Inline scale="s" alignItems="center">
-              <span>{props.title}</span>
-              <AngleRightIcon size="big" color="primary" />
-            </Spacings.Inline>
-          </WrapWith>
-        </Text.Headline>
-        <Text.Body>{props.content}</Text.Body>
-      </Spacings.Stack>
-    </div>
-  </Grid.Item>
-);
-InfoCard.displayName = 'InfoCard';
-
 const Welcome = () => {
-  const match = useRouteMatch();
   const intl = useIntl();
+  const { getData } = useSampler();
+
+  const getSampleData = useCallback(async (entity: string, body?: any) => {
+    return getData(entity, body);
+  }, []);
+
+  const handleEditor = useCallback(
+    (el) => createEditor({ getSampleData }, el),
+    []
+  );
+
+  const [ref] = useRete(handleEditor);
 
   return (
-    <Constraints.Horizontal max={16}>
-      <Spacings.Stack scale="xl">
-        <Text.Headline as="h1" intlMessage={messages.title} />
-        <div>
-          <div className={styles.imageContainer}>
-            <img
-              alt="web developer"
-              src={WebDeveloperSvg}
-              width="100%"
-              height="100%"
-            />
-          </div>
-        </div>
+    <div style={{ width: '100%', height: '100%' }}>
+      <Spacings.Stack scale="m">
+        <Text.Headline as="h3" intlMessage={messages.title}></Text.Headline>
 
-        <Spacings.Stack scale="l">
-          <Text.Subheadline as="h4" intlMessage={messages.subtitle} />
-          <Grid
-            gridGap="16px"
-            gridAutoColumns="1fr"
-            gridTemplateColumns="repeat(3, 1fr)"
-          >
-            <InfoCard
-              title={intl.formatMessage(messages.cardDocumentationTitle)}
-              content={intl.formatMessage(messages.cardDocumentationContent)}
-              linkTo="https://docs.commercetools.com/custom-applications/what-is-a-custom-application"
-              isExternal
-            />
-            <InfoCard
-              title={intl.formatMessage(messages.cardDesignSystemTitle)}
-              content={intl.formatMessage(messages.cardDesignSystemContent)}
-              linkTo="https://uikit.commercetools.com"
-              isExternal
-            />
-            <InfoCard
-              title={intl.formatMessage(messages.cardChannelsTitle)}
-              content={intl.formatMessage(messages.cardChannelsContent)}
-              linkTo={`${match.url}/channels`}
-            />
-          </Grid>
-        </Spacings.Stack>
+        <SpacingsInline scale="m" justifyContent="space-between">
+          <Text.Body intlMessage={messages.body}></Text.Body>
+
+          <SpacingsInline scale="m" alignItems="center">
+            <PrimaryButton label={intl.formatMessage(messages.save)} />{' '}
+            <SecondaryButton label={intl.formatMessage(messages.cancel)} />
+          </SpacingsInline>
+        </SpacingsInline>
       </Spacings.Stack>
-    </Constraints.Horizontal>
+
+      <div style={{ width: '100%', height: '100%', padding: '10px 0' }}>
+        <div
+          style={{ width: '100%', height: '80%', border: '1px solid black' }}
+        >
+          <div
+            ref={ref}
+            style={{ width: '100%', height: '100%', position: 'relative' }}
+          ></div>
+        </div>
+      <CollapsiblePanel header={intl.formatMessage(messages.preview)}>
+        <pre>Hello World</pre>
+      </CollapsiblePanel>
+      </div>
+    </div>
   );
 };
 Welcome.displayName = 'Welcome';

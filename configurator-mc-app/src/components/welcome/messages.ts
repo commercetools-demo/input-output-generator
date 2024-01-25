@@ -3,37 +3,26 @@ import { defineMessages } from 'react-intl';
 export default defineMessages({
   title: {
     id: 'Welcome.title',
-    defaultMessage: 'Develop applications for the Merchant Center',
+    defaultMessage: 'Configure your custom exporter',
   },
-  subtitle: {
-    id: 'Welcome.subtitle',
+  body: {
+    id: 'Welcome.body',
     defaultMessage:
-      'Welcome to Custom Applications! To get started, inspect the source code to get familiar with the setup, the folder structure, the development tools, etc. and read the README file for additional information.',
+      'Create the configuration for your custom exporter.',
   },
-  cardDocumentationTitle: {
-    id: 'Welcome.cardDocumentationTitle',
-    defaultMessage: 'Documentation',
-  },
-  cardDocumentationContent: {
-    id: 'Welcome.cardDocumentationContent',
-    defaultMessage: 'Learn more about Custom Applications.',
-  },
-  cardDesignSystemTitle: {
-    id: 'Welcome.cardDesignSystemTitle',
-    defaultMessage: 'Design System',
-  },
-  cardDesignSystemContent: {
-    id: 'Welcome.cardDesignSystemContent',
+  save: {
+    id: 'Welcome.save',
     defaultMessage:
-      'Explore the UI components to develop Custom Applications and learn more about the Design System.',
+      'Save'
   },
-  cardChannelsTitle: {
-    id: 'Welcome.cardChannelsTitle',
-    defaultMessage: 'Fetching channels',
-  },
-  cardChannelsContent: {
-    id: 'Welcome.cardChannelsContent',
+  cancel: {
+    id: 'Welcome.cancel',
     defaultMessage:
-      'Demo example to fetch some data using GraphQL and displaying it in a paginated table.',
+      'cancel'
+  },
+  preview: {
+    id: 'Welcome.preview',
+    defaultMessage:
+      'Output preview'
   },
 });

@@ -1,33 +1,32 @@
-import { ClassicPreset, NodeEditor } from 'rete';
-import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
+import { NodeEditor } from 'rete';
+import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
+import {
+  ArrangeAppliers,
+  Presets as ArrangePresets,
+  AutoArrangePlugin,
+} from 'rete-auto-arrange-plugin';
 import {
   ConnectionPlugin,
   Presets as ConnectionPresets,
 } from 'rete-connection-plugin';
-import { ReactPlugin, Presets } from 'rete-react-plugin';
 import {
-  AutoArrangePlugin,
-  Presets as ArrangePresets,
-  ArrangeAppliers,
-} from 'rete-auto-arrange-plugin';
-import { DataflowEngine } from 'rete-engine';
-import {
-  ContextMenuExtra,
   ContextMenuPlugin,
-  Presets as ContextMenuPresets,
+  Presets as ContextMenuPresets
 } from 'rete-context-menu-plugin';
-import { ProductNode } from './nodes/ProductNode';
-import { EditorExtraOptions, Schemes, AreaExtra, Connection } from './types';
-import { JSONObejctNode } from './nodes/json-object-node';
-import { SamplerNode } from './nodes/sample-node';
+import { DataflowEngine } from 'rete-engine';
+import { Presets, ReactPlugin } from 'rete-react-plugin';
+import { ButtonControl } from './controls/ButtonControl';
+import { CheckboxControl } from './controls/CheckboxControl';
+import { QueryDropdownControl } from './controls/QueryDropdownControl';
+import { ButtonElement } from './elements/Button';
+import { CheckboxElement } from './elements/Checkbox';
+import { QueryDropdownElement } from './elements/QueryDropDown';
 import { ArrayNode } from './nodes/array-node';
 import { FinalNode } from './nodes/final-node';
-import { QueryDropdownElement } from './elements/QueryDropDown';
-import { QueryDropdownControl } from './controls/QueryDropdownControl';
-import { ButtonControl } from './controls/ButtonControl';
-import { ButtonElement } from './elements/Button';
-import { CheckboxControl } from './controls/CheckboxControl';
-import { CheckboxElement } from './elements/Checkbox';
+import { JSONObejctNode } from './nodes/json-object-node';
+import { SamplerNode } from './nodes/sample-node';
+import { AreaExtra, EditorExtraOptions, Schemes } from './types';
+import { MinimapPlugin } from 'rete-minimap-plugin';
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -66,8 +65,12 @@ export async function createEditor(
     items: ContextMenuPresets.classic.setup([
       ['JSON', () => new JSONObejctNode({ editor, area }, process)],
       ['Array', () => new ArrayNode({ editor, area }, process)],
-      ['Product', () => new ProductNode(undefined, process)],
     ]),
+  });
+
+  const minimap = new MinimapPlugin<Schemes>({
+    boundViewport: true,
+    ratio: 0.8,
   });
 
   area.use(contextMenu);
@@ -98,6 +101,8 @@ export async function createEditor(
   );
   render.addPreset(Presets.contextMenu.setup());
   render.addPreset(Presets.classic.setup());
+  render.addPreset(Presets.minimap.setup({ size: 200 }));
+
 
   connection.addPreset(ConnectionPresets.classic.setup());
 
@@ -109,6 +114,7 @@ export async function createEditor(
   area.use(render);
   area.use(arrange);
   area.use(contextMenu);
+  area.use(minimap);
 
   AreaExtensions.simpleNodesOrder(area);
   AreaExtensions.showInputControl(area);
