@@ -1,4 +1,4 @@
-import { NodeEditor } from 'rete';
+import { ClassicPreset } from 'rete';
 import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
 import {
   ArrangeAppliers,
@@ -21,58 +21,74 @@ import { QueryDropdownControl } from './controls/QueryDropdownControl';
 import { ButtonElement } from './elements/Button';
 import { CheckboxElement } from './elements/Checkbox';
 import { QueryDropdownElement } from './elements/QueryDropDown';
-import { ArrayNode } from './editor-nodes/array-node';
-import { FinalNode } from './editor-nodes/final-node';
-import { JSONObejctNode } from './editor-nodes/json-object-node';
-import { SamplerNode } from './editor-nodes/sample-node';
-import { AreaExtra, EditorExtraOptions, Schemes } from './types';
+import { ArrayNode } from './nodes/array-node';
+import { FinalNode } from './nodes/final-node';
+import { JSONObejctNode } from './nodes/json-object-node';
+import { SamplerNode } from './nodes/root-node';
+import {
+  AreaExtra,
+  ConnProps,
+  EditorExtraOptions,
+  Node,
+  Schemes,
+} from './types';
 import { MinimapPlugin } from 'rete-minimap-plugin';
-import { extractDataByPaths, getAllPaths, getSamplerRoot } from './utils';
+import {
+  extractDataByPaths,
+  getSamplerRoot as getRoot,
+  retryOperation,
+} from './utils';
+import { getExportData } from './utils';
+import { getPaths } from './utils';
+import { NodeEditor } from './editor-node';
 
 export async function createEditor(
   options: EditorExtraOptions,
   container: HTMLElement
 ) {
-  const editor = new NodeEditor<Schemes>();
+  let editor = new NodeEditor();
   const area = new AreaPlugin<Schemes, AreaExtra>(container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
   const render = new ReactPlugin<Schemes, AreaExtra>();
   const arrange = new AutoArrangePlugin<Schemes>();
   const engine = new DataflowEngine<Schemes>();
 
+  async function updateParentComponent(paths: string[]) {
+    const nodes = editor.getNodes();
+    const connections = editor.getConnections();
+    const root = getRoot(editor);
+    const exportData = getExportData(nodes, connections);
+
+    options.exportConfig?.({
+      entity: root?.selectedEntity,
+      exportData,
+      expands: root?.expands,
+      paths,
+    });
+  }
+
+  async function updatePreview(paths: string[]) {
+    const root = getRoot(editor);
+    if (root) {
+      options.setPreviewData?.(
+        JSON.stringify(
+          extractDataByPaths(root!.returningObject, paths),
+          null,
+          2
+        )
+      );
+    }
+  }
+
   async function process() {
     engine.reset();
 
-    editor.getNodes().forEach((n) => engine.fetch(n.id));
+    const nodes = editor.getNodes();
+    nodes.forEach((n) => engine.fetch(n.id));
+    const paths = await getPaths(editor);
 
-    try {
-      const all = await Promise.all(
-        editor
-          .getNodes()
-          .filter((n) => n instanceof FinalNode)
-          .map((n) => getAllPaths(n, editor))
-      );
-      const root = getSamplerRoot(editor);
-      const paths = all.reduce((a, b) => [...a, ...b], []);
-
-      options.exportConfig?.({
-        entity: root?.inputs.entity?.control?._entity,
-        expands: root?.expands,
-        paths,
-      });
-
-      if (root) {
-        options.setPreviewData?.(
-          JSON.stringify(
-            extractDataByPaths(root!.returningObject, paths),
-            null,
-            2
-          )
-        );
-      }
-    } catch (e) {
-      console.log('happend in process', e);
-    }
+    updateParentComponent(paths);
+    updatePreview(paths);
   }
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
@@ -164,25 +180,8 @@ export async function createEditor(
     return context;
   });
 
-  const query = new SamplerNode(
-    { ...options, initial: 'products', area, editor, engine },
-    process
-  );
-  const arrayN = new ArrayNode({ editor, area }, process);
-  const json = new JSONObejctNode({ area, editor }, process);
-  const final = new FinalNode({ editor, area }, process);
+  await editor.populate(options, area, engine, process);
 
-  await editor.addNode(query);
-  await editor.addNode(arrayN);
-  await editor.addNode(json);
-  await editor.addNode(final);
-
-  // TODO: fix this
-  // try {
-  //   await editor.addConnection(new ClassicPreset.Connection(query, "results", arrayN, "array"));
-  // } catch (e) {
-  //   console.log('todo: fix this');
-  // }
 
   const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
     duration: 500,
@@ -199,3 +198,14 @@ export async function createEditor(
     destroy: () => area.destroy(),
   };
 }
+
+
+
+
+
+
+
+
+
+
+

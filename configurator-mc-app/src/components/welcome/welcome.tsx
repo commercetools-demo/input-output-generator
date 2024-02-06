@@ -10,9 +10,13 @@ import PrimaryButton from '@commercetools-uikit/primary-button';
 import SecondaryButton from '@commercetools-uikit/secondary-button';
 import { useIntl } from 'react-intl';
 import CollapsiblePanel from '@commercetools-uikit/collapsible-panel';
-import { useCustomObjectUpdater } from '../../hooks/use-custom-object-connector/use-custom-object-connector';
+import {
+  useCustomObjectFetcher,
+  useCustomObjectUpdater,
+} from '../../hooks/use-custom-object-connector/use-custom-object-connector';
 import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
 import { ContentNotification } from '@commercetools-uikit/notifications';
+import { EditorExtraOptions, ExportConfigParams } from '../editor/types';
 
 type TWrapWithProps = {
   children: ReactNode;
@@ -26,35 +30,47 @@ WrapWith.displayName = 'WrapWith';
 
 const Welcome = () => {
   const intl = useIntl();
-  const { getData } = useSampler();
-  const { execute } = useCustomObjectUpdater();
   const { storageContainer, storageKey } = useApplicationContext<{
     storageKey: string;
     storageContainer: string;
   }>((context: any) => context.environment);
 
+  const { getData } = useSampler();
+  const { execute } = useCustomObjectUpdater();
+
+  const { customObject, loading } = useCustomObjectFetcher({
+    container: storageContainer,
+    key: storageKey,
+  });
+
   const [previewData, setPreviewData] = useState<string>('');
-  const [config, setConfig] = useState<{
-    paths: string[];
-    entity: string;
-    expands?: string[];
-  }>();
+  const [config, setConfig] = useState<ExportConfigParams>();
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
-  const getSampleData = useCallback(async (entity: string, body?: any) => {
-    return getData(entity, body);
-  }, []);
+  const getSampleData = useCallback(getData, []);
 
   const handleEditor = useCallback(
-    (el) =>
-      createEditor(
-        { getSampleData, setPreviewData, exportConfig: setConfig },
+    (el) => {
+      if (loading && !customObject) {
+        return new Promise<any>(() => ({
+          destroy: () => {},
+        }));
+      }
+
+      return createEditor(
+        {
+          getSampleData,
+          setPreviewData,
+          exportConfig: setConfig,
+          initialData: customObject?.value.exportData,
+        },
         el
-      ),
-    []
+      );
+    },
+    [loading, customObject]
   );
 
-  const [ref] = useRete(handleEditor);
+  let [ref] = useRete(handleEditor);
 
   const storePaths = async () => {
     await execute({

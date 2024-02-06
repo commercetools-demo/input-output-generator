@@ -48,7 +48,15 @@ export const useCustomObjectsFetcher: TUseCustomObjectsFetcher = (
 };
 
 type TUseCustomObjectFetcher = (variables: TQuery_CustomObjectArgs) => {
-  customObject?: TQuery['customObject'];
+  customObject?: {
+    id: string;
+    version: number;
+    container: string;
+    value: {
+      [key: string]: any;
+    }
+    key: string;
+  } | null;
   error?: ApolloError;
   loading: boolean;
   refetch(): Promise<ApolloQueryResult<TQuery>>;

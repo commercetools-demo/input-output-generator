@@ -1,56 +1,53 @@
 import { ClassicPreset } from 'rete';
-import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
+import { INITIAL_HEIGHT } from '../constants';
 import { ConnProps, EditorExtraOptions } from '../types';
 import { ButtonControl } from '../controls/ButtonControl';
 import { Socket } from 'rete/_types/presets/classic';
+import { BasicNode } from './basic-node';
 
 const socket = new ClassicPreset.Socket('socket');
 
-export class FinalNode extends ClassicPreset.Node<
+export class FinalNode extends BasicNode<
   Record<string, Socket>,
   {},
   {
     addButton: ButtonControl;
   }
 > {
-  height = INITIAL_HEIGHT;
-  width = INITIAL_WIDTH;
-  options?: EditorExtraOptions;
-  returningObject: Record<string, any> = {};
-  change?: () => void;
-
+  connections: Record<string, ConnProps | undefined> = {};
   constructor(options?: EditorExtraOptions, change?: () => void) {
-    super('OUTPUT');
+    super('OUTPUT', options, change);
 
     const input0 = new ClassicPreset.Input(socket, 'input0');
-    const addButton = new ButtonControl(() => this.onAddClick(change));
+    const addButton = new ButtonControl(() => this.addInputControl(change));
     addButton.label = '+';
 
     this.addInput('input0', input0);
     this.addControl('addButton', addButton);
-    // this.addInput('addData', addData);
-    this.options = options;
   }
 
   connectionAdded = (connection: ConnProps) => {
     Object.keys(this.inputs).forEach((key) => {
+      const connectionIdentifier = connection.targetInput.toString();
       if (
         this.inputs[key] &&
-        !(this.inputs[key] as any)?.connection &&
-        connection.targetInput === key
+        connectionIdentifier === key &&
+        !this.connections[connectionIdentifier]
       ) {
-        (this.inputs[key] as any).connection = connection;
-        this.inputs[key]!.label = connection.sourceOutput;
+        this.connections[connectionIdentifier] = connection;
+        this.inputs[key]!.label = connection.sourceOutput.toString();
       }
     });
   };
   connectionRemoved = (connection: ConnProps) => {
-    if (this.inputs[connection.targetInput]) {
-      (this.inputs[connection.targetInput] as any).connection = undefined;
+    const connectionIdentifier = connection.targetInput.toString();
+
+    if (this.inputs[connectionIdentifier]) {
+      this.connections[connectionIdentifier] = undefined;
     }
   };
 
-  onAddClick = (change?: () => void) => {
+  addInputControl = (change?: () => void) => {
     const currentInputCount = Object.keys(this.inputs).length;
     const key = `input${currentInputCount}`;
 
@@ -66,13 +63,13 @@ export class FinalNode extends ClassicPreset.Node<
     this.options?.area?.update('node', this.id);
   };
 
-  async data(inputs: { inputData: any[] }): any {
-    return 'data';
-    // const { inputData } = inputs;
-    // if (!inputData?.[0]) {
-    //   return {};
-    // }
+  createBulkInputs = (count: number) => {
+    for (let index = 1; index < count; index++) {
+      this.addInputControl();
+    }
+  }
 
-    // return inputData[0];
+  async data(): Promise<string> {
+    return 'data';
   }
 }

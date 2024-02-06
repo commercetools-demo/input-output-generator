@@ -1,13 +1,12 @@
 import { Product } from '@commercetools/platform-sdk';
 import { ClassicPreset, GetSchemes, NodeEditor } from 'rete';
-import { ProductNode } from './editor-nodes/ProductNode';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
-import { JSONObejctNode } from './editor-nodes/json-object-node';
-import { SamplerNode } from './editor-nodes/sample-node';
+import { JSONObejctNode } from './nodes/json-object-node';
+import { SamplerNode } from './nodes/root-node';
 import { SampleDataResult } from '../../hooks/sampler-connection/types';
-import { ArrayNode } from './editor-nodes/array-node';
-import { FinalNode } from './editor-nodes/final-node';
+import { ArrayNode } from './nodes/array-node';
+import { FinalNode } from './nodes/final-node';
 import { AreaPlugin } from 'rete-area-plugin';
 import { DataflowEngine } from 'rete-engine';
 import { MinimapExtra } from 'rete-minimap-plugin';
@@ -16,26 +15,70 @@ export type TProductNode = {
   [Property in keyof Product]: ClassicPreset.Socket;
 };
 
+export interface ExportConfigParams {
+  entity?: string;
+  paths: string[];
+  expands?: string[];
+  exportData?: {
+    nodes: StoredNode[];
+    connections: Omit<ConnProps, 'id'>[];
+  };
+}
+
 export interface EditorExtraOptions {
-  getSampleData?: (entity: string, body?: any) => Promise<SampleDataResult>;
+  getSampleData?: (entity: string, body?: object) => Promise<SampleDataResult>;
   setPreviewData?: (json: string) => void;
-  exportConfig?: (config: {
-    entity: string;
-    paths: string[];
-    expands?: string[];
-  }) => void;
+  exportConfig?: (config: ExportConfigParams) => void;
+  initialData?: { nodes: StoredNode[], connections: Omit<ConnProps, 'id'>[]  };
   area?: AreaPlugin<Schemes, AreaExtra>;
   editor?: NodeEditor<Schemes>;
   engine?: DataflowEngine<Schemes>;
   initial?: any;
+  id?: string;
+}
+
+export interface StoredNode {
+  id?: string;
+  label: string;
+  path?: string;
+  returningObject?: Record<string, string | number | object>;
+  width?: number;
+  height?: number;
+  outputs?: { [key: string]: StoredOutput };
+  controls?: { [key: string]: StoredControl };
+  inputs?: { [key: string]: StoredInput };
+}
+
+interface StoredOutput {
+  id: string;
+  label: string;
+}
+
+interface StoredControl {
+  id: string;
+  label: string;
+}
+
+interface StoredInput {
+  id?: string;
+  label?: string;
+  control: StoredControlEntity;
+}
+
+interface StoredControlEntity {
+  id?: string;
+  _entity?: string;
+  label?: string; 
 }
 
 export type Node =
   | SamplerNode
-  | ProductNode
   | JSONObejctNode
   | ArrayNode
   | FinalNode;
+
+  export type SourceNodes = SamplerNode | ArrayNode | JSONObejctNode;
+  export type TargetNodes = JSONObejctNode | FinalNode | ArrayNode;
 export class Connection<
   A extends Node,
   B extends Node
@@ -43,12 +86,8 @@ export class Connection<
 
 export type ConnProps =
   | Connection<SamplerNode, JSONObejctNode>
-  | Connection<SamplerNode, ProductNode>
   | Connection<SamplerNode, ArrayNode>
-  | Connection<ProductNode, ArrayNode>
-  | Connection<ProductNode, JSONObejctNode>
   | Connection<SamplerNode, FinalNode>
-  | Connection<ProductNode, FinalNode>
   | Connection<JSONObejctNode, FinalNode>
   | Connection<JSONObejctNode, JSONObejctNode>
   | Connection<ArrayNode, JSONObejctNode>
