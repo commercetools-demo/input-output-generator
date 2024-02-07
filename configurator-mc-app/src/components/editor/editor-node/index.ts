@@ -88,6 +88,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       new ClassicPreset.Connection(query, 'results', arrayN, 'array')
     );
     await arrayN.updateNode();
+    await engine.fetch(arrayN.id);
     await this.addConnection(
       new ClassicPreset.Connection(arrayN, 'results', json, 'jsonObject')
     );
@@ -227,6 +228,8 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       const target = this.getNode(connection.target) as TargetNodes;
 
       await retryOperation(async () => {
+        console.log('source', source, 'target', target);
+
         if (source.hasOutput(connection.sourceOutput)) {
           // @ts-ignore
           if (!target.hasInput(connection.targetInput)) {

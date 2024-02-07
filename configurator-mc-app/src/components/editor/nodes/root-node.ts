@@ -60,14 +60,15 @@ export class SamplerNode extends BasicNode<
 
   private onDropdownChange = async (value: string) => {
     this.selectedEntity = value;
-    await this.getData(value);
+    await this.getData(value, { limit: 5 });
   };
 
   private onChangeExpands = async () => {
     if (this.selectedEntity) {
-      let body = {};
+      let body: Record<string, number | string | string[]> = { limit: 5 };
       if (this.expands.length > 0) {
         body = {
+          ...body,
           expand: this.expands,
         };
       }
@@ -91,8 +92,8 @@ export class SamplerNode extends BasicNode<
     return this.returningObject;
   }
 
-  protected updateNode() {
-    this.options?.area?.update('node', this.id);
+  async updateNode() {
+    await this.options?.area?.update('node', this.id);
 
     this.options?.engine?.reset();
   }
