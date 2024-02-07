@@ -1,5 +1,5 @@
 import { Product } from '@commercetools/platform-sdk';
-import { ClassicPreset, GetSchemes, NodeEditor } from 'rete';
+import { ClassicPreset, GetSchemes } from 'rete';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
 import { JSONObejctNode } from './nodes/json-object-node';
@@ -10,6 +10,7 @@ import { FinalNode } from './nodes/final-node';
 import { AreaPlugin } from 'rete-area-plugin';
 import { DataflowEngine } from 'rete-engine';
 import { MinimapExtra } from 'rete-minimap-plugin';
+import { NodeEditor } from './editor-node';
 
 export type TProductNode = {
   [Property in keyof Product]: ClassicPreset.Socket;
@@ -31,7 +32,7 @@ export interface EditorExtraOptions {
   exportConfig?: (config: ExportConfigParams) => void;
   initialData?: { nodes: StoredNode[], connections: Omit<ConnProps, 'id'>[]  };
   area?: AreaPlugin<Schemes, AreaExtra>;
-  editor?: NodeEditor<Schemes>;
+  editor?: NodeEditor;
   engine?: DataflowEngine<Schemes>;
   initial?: any;
   id?: string;

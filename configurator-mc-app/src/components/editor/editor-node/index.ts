@@ -28,8 +28,6 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     process: () => Promise<void>
   ) {
     if (options.initialData) {
-        console.log("initialData", options.initialData);
-        
       const nodes = options.initialData.nodes;
       const connections = options.initialData.connections;
       await this.populateWithStoredData(
@@ -41,7 +39,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
         process
       );
     } else {
-      await this.populateWithDefaultNodes(options, area, engine, process);
+    await this.populateWithDefaultNodes(options, area, engine, process);
     }
   }
 
@@ -57,8 +55,6 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     const root = this.getRoot();
 
     await root?.checkRoot();
-
-
     await this.traverseConnections(
       options,
       area,
@@ -76,35 +72,27 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     engine: DataflowEngine<Schemes>,
     process: () => Promise<void>
   ) {
-    const nodes = [
-      {
-        label: 'sampler',
-        inputs: {
-          entity: {
-            control: {
-              _entity: 'products',
-            },
-          },
-        },
-      },
-      {
-        label: 'array',
-      },
-      {
-        label: 'json object',
-      },
-      {
-        label: 'output',
-      },
-    ];
-    await this.populateWithStoredData(
-      nodes,
-      [],
-      options,
-      area,
-      engine,
+    const query = new SamplerNode(
+      { ...options, initial: 'products', area, editor: this, engine },
       process
     );
+    const arrayN = new ArrayNode({ editor: this, area }, process);
+    const json = new JSONObejctNode({ area, editor: this }, process);
+    const final = new FinalNode({ editor: this, area }, process);
+
+    await this.addNode(query);
+    await this.addNode(arrayN);
+    await this.addNode(json);
+    await query.checkRoot();
+    await this.addConnection(
+      new ClassicPreset.Connection(query, 'results', arrayN, 'array')
+    );
+    await arrayN.updateNode();
+    await this.addConnection(
+      new ClassicPreset.Connection(arrayN, 'results', json, 'jsonObject')
+    );
+    await json.updateNode();
+    await this.addNode(final);
   }
 
   private async createNodes(
@@ -177,7 +165,6 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     parentId: string = ''
   ) {
     const nodes = this.getAllChildNodes(nodeList, connections, parentId);
-    // issue is here
     await this.createConnection(parentId, connections, area);
 
     for await (const node of nodes) {
@@ -208,8 +195,13 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       .filter(Boolean)
       .filter(
         (node, i, list) => list.findIndex((n) => n?.id === node?.id) === i
-      ).sort((a, b) => {
-        return a.label?.toLowerCase() === 'output' ? 1 : b?.label?.toLowerCase() === 'output' ? -1 : -1
+      )
+      .sort((a, b) => {
+        return a?.label?.toLowerCase() === 'output'
+          ? 1
+          : b?.label?.toLowerCase() === 'output'
+          ? -1
+          : -1;
       }) as StoredNode[];
   }
 
@@ -224,7 +216,9 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
 
     const nodeItem = this.getNode(nodeId);
     if (nodeItem && nodeItem instanceof FinalNode) {
-        (nodeItem as FinalNode).createBulkInputs(connectionsToThisNode.length-1)
+      (nodeItem as FinalNode).createBulkInputs(
+        connectionsToThisNode.length - 1
+      );
     }
 
     for await (const connection of connectionsToThisNode) {

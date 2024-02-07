@@ -29,8 +29,8 @@ export class BasicNode<
     }
   }
 
-  protected updateNode() {
-    this.options?.area?.update('node', this.id);
+  async updateNode() {
+    return this.options?.area?.update('node', this.id);
   }
 
   getExportData(): StoredNode {
