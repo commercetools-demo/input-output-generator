@@ -67,11 +67,6 @@ export class BasicNode<
           [curr]: {
             id: this.inputs[curr]?.id,
             label: this.inputs[curr]?.label,
-            control: {
-              id: this.inputs[curr]?.control?.id,
-              _entity: this.inputs[curr]?.control?._entity,
-              label: this.inputs[curr]?.control?.label,
-            },
           },
         }),
         {}

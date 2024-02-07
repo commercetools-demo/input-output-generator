@@ -2,7 +2,6 @@ import { ClassicPreset } from 'rete';
 import { INITIAL_HEIGHT } from '../constants';
 import { EditorExtraOptions } from '../types';
 import { CheckboxControl } from '../controls/CheckboxControl';
-import { getFullPathExceptRoot } from '../utils';
 import { BasicNode } from './basic-node';
 
 const socket = new ClassicPreset.Socket('socket');
@@ -42,18 +41,23 @@ export class JSONObejctNode extends BasicNode<
 
   onChange = async (checked: boolean) => {
     const root = this.options?.editor?.getRoot();
-    const fullPath = getFullPathExceptRoot(this.id, this.options?.editor!);
+    const fullPath = this.options?.editor?.getFullPath(this.id);
 
-    if (root) {
+    if (root && fullPath) {
+      const list = fullPath.split('.');
+      list.splice(0, 1);
+
+      const fullPathExceptRoot = list.join('.');
+
       if (checked) {
-        await root.addToExpands(fullPath);
+        await root.addToExpands(fullPathExceptRoot);
       } else {
-        await root.removeFromExpands(fullPath);
+        await root.removeFromExpands(fullPathExceptRoot);
       }
     }
 
+    await this.updateNode();
     this.change?.();
-    this.updateNode();
   };
 
   private updateOutputs(

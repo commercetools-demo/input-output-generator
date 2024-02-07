@@ -3,6 +3,7 @@ import {
   AreaExtra,
   ConnProps,
   EditorExtraOptions,
+  Node,
   Schemes,
   SourceNodes,
   StoredNode,
@@ -28,11 +29,13 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     process: () => Promise<void>
   ) {
     if (options.initialData) {
-      const nodes = options.initialData.nodes;
-      const connections = options.initialData.connections;
+      const nodes = options.initialData.exportData.nodes;
+      const connections = options.initialData.exportData.connections;
+      const entity = (options.initialData.entity as string) || 'products';
       await this.populateWithStoredData(
         nodes,
         connections,
+        entity,
         options,
         area,
         engine,
@@ -43,15 +46,52 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     }
   }
 
+  getFullPath(id: string): string {
+    return this.traverseParentPath(this.getNode(id));
+  }
+
+  private traverseParentPath(node: Node): string {
+    const allConnections = this.getConnections();
+    const connectionsToCurrentNode = allConnections.filter(
+      (c) => c.target === node.id
+    );
+    const connectionsFromCurrentNode = allConnections.filter(
+      (c) => c.source === node.id
+    );
+
+    const currentDot = connectionsFromCurrentNode.length === 0 ? '' : '.';
+
+    let currentPath = node.path + currentDot;
+
+    if (node instanceof SamplerNode) {
+      return '';
+    }
+
+    if (node instanceof ArrayNode) {
+      currentPath = '';
+    }
+
+    if (connectionsToCurrentNode.length === 0) {
+      return currentPath;
+    }
+    const parent = this.getNode(connectionsToCurrentNode[0].source);
+    if (parent instanceof ArrayNode) {
+      return this.traverseParentPath(parent) + node.path + '[*]' + currentDot;
+    }
+
+    return this.traverseParentPath(parent) + currentPath;
+  }
+
   private async populateWithStoredData(
     nodes: StoredNode[],
     connections: Omit<ConnProps, 'id'>[],
+    entity: string,
     options: EditorExtraOptions,
     area: AreaPlugin<Schemes, AreaExtra>,
     engine: DataflowEngine<Schemes>,
     process: () => Promise<void>
   ) {
-    await this.createNodes(nodes, options, area, engine, process);
+    await this.createNodes(nodes, entity, options, area, engine, process);
     const root = this.getRoot();
 
     await root?.checkRoot();
@@ -98,6 +138,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
 
   private async createNodes(
     nodes: StoredNode[],
+    entity: string,
     options: EditorExtraOptions,
     area: AreaPlugin<Schemes, AreaExtra>,
     engine: DataflowEngine<Schemes>,
@@ -109,7 +150,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
           const samplerNode = new SamplerNode({
             ...options,
             id: node.id,
-            initial: node.inputs?.entity.control._entity,
+            initial: entity,
             area,
             editor: this,
             engine,
@@ -166,7 +207,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     parentId: string = ''
   ) {
     const nodes = this.getAllChildNodes(nodeList, connections, parentId);
-    await this.createConnections(parentId, nodes, connections, area, process);
+    await this.createConnections(parentId, nodes, connections, process);
 
     for await (const node of nodes) {
       await this.traverseConnections(
@@ -210,7 +251,6 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     nodeId: string,
     nodes: StoredNode[],
     connections: Omit<ConnProps, 'id'>[],
-    area: AreaPlugin<Schemes, AreaExtra>,
     process: () => Promise<void>
   ) {
     if (!nodes.length) {
@@ -228,8 +268,6 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       const target = this.getNode(connection.target) as TargetNodes;
 
       await retryOperation(async () => {
-        console.log('source', source, 'target', target);
-
         if (source.hasOutput(connection.sourceOutput)) {
           // @ts-ignore
           if (!target.hasInput(connection.targetInput)) {

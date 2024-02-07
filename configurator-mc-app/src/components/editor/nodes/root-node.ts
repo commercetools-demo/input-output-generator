@@ -6,6 +6,7 @@ import { QueryDropdownControl } from '../controls/QueryDropdownControl';
 import { SampleDataResult } from '../../../hooks/sampler-connection/types';
 import { BasicNode } from './basic-node';
 import { retryOperation } from '../utils';
+import { Control } from 'rete/_types/presets/classic';
 
 const socket = new ClassicPreset.Socket('socket');
 
@@ -18,7 +19,7 @@ export class SamplerNode extends BasicNode<
     entity: ClassicPreset.Socket;
   },
   Record<string, ClassicPreset.Socket>,
-  {}
+  Record<string, Control>
 > {
   height = SAMPLE_INITIAL_HEIGHT + 50;
   expands: string[] = [];

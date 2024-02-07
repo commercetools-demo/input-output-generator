@@ -62,7 +62,7 @@ const Welcome = () => {
           getSampleData,
           setPreviewData,
           exportConfig: setConfig,
-          initialData: customObject?.value.exportData,
+          initialData: customObject?.value as any,
         },
         el
       );

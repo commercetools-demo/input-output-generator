@@ -12,7 +12,7 @@ export function QueryDropdownElement(props: { data: QueryDropdownControl }) {
     }
   }, []);
   return (
-    <select onChange={onChange}>
+    <select onChange={onChange} value={props.data.entity}>
       <option value="products">Products</option>
       <option value="orders">Orders</option>
       <option value="payments">Payments</option>

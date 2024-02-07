@@ -54,45 +54,6 @@ export const extractDataByPaths = (
 
   return result;
 };
-export const getParentPath = (
-  editor: NodeEditor<Schemes>,
-  node: Node,
-  allConnections: ConnProps[]
-): string => {
-  const connectionsToCurrentNode = allConnections.filter(
-    (c) => c.target === node.id
-  );
-  const connectionsFromCurrentNode = allConnections.filter(
-    (c) => c.source === node.id
-  );
-
-  const currentDot = connectionsFromCurrentNode.length === 0 ? '' : '.';
-
-  let currentPath = node.path + currentDot;
-
-  if (node instanceof SamplerNode) {
-    return '';
-  }
-
-  if (node instanceof ArrayNode) {
-    currentPath = '';
-  }
-
-  if (connectionsToCurrentNode.length === 0) {
-    return currentPath;
-  }
-  const parent = editor.getNode(connectionsToCurrentNode[0].source);
-  if (parent instanceof ArrayNode) {
-    return (
-      getParentPath(editor, parent, allConnections) +
-      node.path +
-      '[*]' +
-      currentDot
-    );
-  }
-
-  return getParentPath(editor, parent, allConnections) + currentPath;
-};
 
 const getRootPath = (node: Node, editor: NodeEditor<Schemes>): string => {
   const allConnections = editor.getConnections();
@@ -134,25 +95,6 @@ export const getAllPaths = (
       paths.push(paretnPath + c.sourceOutput);
     });
   return paths;
-};
-
-export const getFullPath = (
-  id: string,
-  editor: NodeEditor<Schemes>
-): string => {
-  const allConnections = editor.getConnections();
-  return getParentPath(editor, editor.getNode(id), allConnections);
-};
-
-export const getFullPathExceptRoot = (
-  id: string,
-  editor: NodeEditor<Schemes>
-): string => {
-  const fullPath = getFullPath(id, editor);
-  const list = fullPath.split('.');
-  list.splice(0, 1);
-
-  return list.join('.');
 };
 
 export const getSamplerRoot = (

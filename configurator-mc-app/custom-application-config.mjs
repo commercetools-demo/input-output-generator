@@ -21,7 +21,7 @@ const config = {
     storageContainer: '${env:STORAGE_CONTAINER}',
   },
   oAuthScopes: {
-    view: ['view_products'],
+    view: ['view_products', 'view_orders', 'view_payments'],
     manage: ['manage_products'],
   },
   icon: '${path:@commercetools-frontend/assets/application-icons/export.svg}',
