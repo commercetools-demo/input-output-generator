@@ -49,7 +49,11 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
   }
 
   getFullPath(id: string): string {
-    return this.traverseParentPath(this.getNode(id));
+    const node = this.getNode(id);
+    if (node) {
+      return this.traverseParentPath(node);
+    }
+    return '';
   }
 
   private traverseParentPath(node: Node): string {

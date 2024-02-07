@@ -57,9 +57,8 @@ export class JSONObejctNode extends BasicNode<
     const fullPath = this.options?.editor?.getFullPath(this.id);
 
     if (root && fullPath) {
-      const list = fullPath.split('.');
+      const list = fullPath.split('.').filter(Boolean);
       list.splice(0, 1);
-
       const fullPathExceptRoot = list.join('.');
 
       if (checked) {
@@ -78,7 +77,7 @@ export class JSONObejctNode extends BasicNode<
     return {
       ...storedNode,
       isExpanded: this.isExpanded,
-    }
+    };
   }
 
   private updateOutputs(
