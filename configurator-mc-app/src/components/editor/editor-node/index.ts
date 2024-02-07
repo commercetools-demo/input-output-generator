@@ -32,10 +32,12 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       const nodes = options.initialData.exportData.nodes;
       const connections = options.initialData.exportData.connections;
       const entity = (options.initialData.entity as string) || 'products';
+      const expands = (options.initialData.expands as string[]) || [];
       await this.populateWithStoredData(
         nodes,
         connections,
         entity,
+        expands,
         options,
         area,
         engine,
@@ -86,12 +88,13 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     nodes: StoredNode[],
     connections: Omit<ConnProps, 'id'>[],
     entity: string,
+    expands: string[],
     options: EditorExtraOptions,
     area: AreaPlugin<Schemes, AreaExtra>,
     engine: DataflowEngine<Schemes>,
     process: () => Promise<void>
   ) {
-    await this.createNodes(nodes, entity, options, area, engine, process);
+    await this.createNodes(nodes, entity,expands, options, area, engine, process);
     const root = this.getRoot();
 
     await root?.checkRoot();
@@ -114,10 +117,11 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
   ) {
     const query = new SamplerNode(
       { ...options, initial: 'products', area, editor: this, engine },
+      [],
       process
     );
     const arrayN = new ArrayNode({ editor: this, area }, process);
-    const json = new JSONObejctNode({ area, editor: this }, process);
+    const json = new JSONObejctNode({ area, editor: this },false, process);
     const final = new FinalNode({ editor: this, area }, process);
 
     await this.addNode(query);
@@ -139,6 +143,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
   private async createNodes(
     nodes: StoredNode[],
     entity: string,
+    expands: string[],
     options: EditorExtraOptions,
     area: AreaPlugin<Schemes, AreaExtra>,
     engine: DataflowEngine<Schemes>,
@@ -147,6 +152,8 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     for await (const node of nodes) {
       switch (node.label?.toLowerCase()) {
         case 'sampler':
+          console.log(entity, expands);
+          
           const samplerNode = new SamplerNode({
             ...options,
             id: node.id,
@@ -154,7 +161,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
             area,
             editor: this,
             engine,
-          });
+          }, expands, process);
           await this.addNode(samplerNode);
           area?.update('node', node.id!);
           break;
@@ -176,6 +183,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
               area,
               editor: this,
             },
+            node.isExpanded,
             process
           );
           await this.addNode(jsonNode);

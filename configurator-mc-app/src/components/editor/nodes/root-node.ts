@@ -25,7 +25,7 @@ export class SamplerNode extends BasicNode<
   expands: string[] = [];
   selectedEntity: string = '';
 
-  constructor(options?: EditorExtraOptions, change?: () => void) {
+  constructor(options?: EditorExtraOptions, expands: string[] = [], change?: () => void) {
     super('Sampler', options, change);
     const entity = new ClassicPreset.Input(socket, 'Entity name');
     const dropdownControl = new QueryDropdownControl(this.onDropdownChange);
@@ -34,6 +34,10 @@ export class SamplerNode extends BasicNode<
     entity.addControl(dropdownControl);
 
     this.addInput('entity', entity);
+    if (expands.length) {
+      this.expands = expands;
+      this.onChangeExpands();
+    }
   }
 
   addToExpands(expand: string) {
@@ -61,23 +65,23 @@ export class SamplerNode extends BasicNode<
 
   private onDropdownChange = async (value: string) => {
     this.selectedEntity = value;
-    await this.getData(value, { limit: 5 });
+    await this.getData(value);
   };
 
   private onChangeExpands = async () => {
     if (this.selectedEntity) {
-      let body: Record<string, number | string | string[]> = { limit: 5 };
+      return this.getData(this.selectedEntity);
+    }
+  };
+
+  private getData = async (value: string) => {
+    let body: Record<string, number | string | string[]> = { limit: 5 };
       if (this.expands.length > 0) {
         body = {
           ...body,
           expand: this.expands,
         };
       }
-      return this.getData(this.selectedEntity, body);
-    }
-  };
-
-  private getData = async (value: string, body?: object) => {
     const queryResult = await this.options?.getSampleData?.(value, body);
     if (!queryResult || queryResult.results.length === 0) {
       console.log('no results');

@@ -46,6 +46,7 @@ export interface StoredNode {
   label: string;
   path?: string;
   returningObject?: Record<string, string | number | object>;
+  isExpanded?: boolean;
   width?: number;
   height?: number;
   outputs?: { [key: string]: StoredOutput };

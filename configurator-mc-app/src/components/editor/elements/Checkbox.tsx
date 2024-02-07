@@ -20,6 +20,7 @@ export function CheckboxElement(props: { data: CheckboxControl }) {
         id={props.data.id}
         type="checkbox"
         onChange={onChange}
+        checked={props.data.checked}
       ></input>
       <label
         onPointerDown={(e) => e.stopPropagation()}

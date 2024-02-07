@@ -1,6 +1,6 @@
 import { ClassicPreset } from 'rete';
 import { INITIAL_HEIGHT } from '../constants';
-import { EditorExtraOptions } from '../types';
+import { EditorExtraOptions, StoredNode } from '../types';
 import { CheckboxControl } from '../controls/CheckboxControl';
 import { BasicNode } from './basic-node';
 
@@ -15,7 +15,12 @@ export class JSONObejctNode extends BasicNode<
     expand: CheckboxControl;
   }
 > {
-  constructor(options?: EditorExtraOptions, change?: () => void) {
+  isExpanded = false;
+  constructor(
+    options?: EditorExtraOptions,
+    isExpanded?: boolean,
+    change?: () => void
+  ) {
     super('JSON object', options, change);
     const jsonObject = new ClassicPreset.Input(socket, 'JSON object');
     const expand = new CheckboxControl(this.onChange);
@@ -23,6 +28,12 @@ export class JSONObejctNode extends BasicNode<
 
     this.addInput('jsonObject', jsonObject);
     this.addControl('expand', expand);
+
+    if (isExpanded) {
+      this.isExpanded = isExpanded;
+      this.controls.expand.show = true;
+      this.onChange(isExpanded);
+    }
   }
 
   async data(inputs: {
@@ -40,6 +51,8 @@ export class JSONObejctNode extends BasicNode<
   }
 
   onChange = async (checked: boolean) => {
+    this.isExpanded = checked;
+    this.controls.expand.checked = checked;
     const root = this.options?.editor?.getRoot();
     const fullPath = this.options?.editor?.getFullPath(this.id);
 
@@ -59,6 +72,14 @@ export class JSONObejctNode extends BasicNode<
     await this.updateNode();
     this.change?.();
   };
+
+  getExportData(): StoredNode {
+    const storedNode = super.getExportData();
+    return {
+      ...storedNode,
+      isExpanded: this.isExpanded,
+    }
+  }
 
   private updateOutputs(
     jsonObject: Record<string, string | number | object>[]
