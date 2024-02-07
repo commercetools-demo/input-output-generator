@@ -199,7 +199,7 @@ export async function getPaths(editor: NodeEditor<Schemes>) {
 
 export async function retryOperation(
   operation: () => Promise<unknown>,
-  maxRetries = 5,
+  maxRetries = 10,
   delay = 500
 ) {
   return new Promise((resolve, reject) => {

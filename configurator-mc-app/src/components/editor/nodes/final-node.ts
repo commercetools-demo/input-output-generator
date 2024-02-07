@@ -63,12 +63,6 @@ export class FinalNode extends BasicNode<
     this.options?.area?.update('node', this.id);
   };
 
-  createBulkInputs = (count: number) => {
-    for (let index = 1; index < count; index++) {
-      this.addInputControl();
-    }
-  };
-
   async data(): Promise<string> {
     return 'data';
   }

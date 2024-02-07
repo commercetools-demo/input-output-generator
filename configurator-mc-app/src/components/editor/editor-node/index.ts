@@ -165,7 +165,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     parentId: string = ''
   ) {
     const nodes = this.getAllChildNodes(nodeList, connections, parentId);
-    await this.createConnection(parentId, connections, area);
+    await this.createConnections(parentId, nodes, connections, area, process);
 
     for await (const node of nodes) {
       await this.traverseConnections(
@@ -205,29 +205,36 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       }) as StoredNode[];
   }
 
-  private async createConnection(
+  private async createConnections(
     nodeId: string,
+    nodes: StoredNode[],
     connections: Omit<ConnProps, 'id'>[],
-    area: AreaPlugin<Schemes, AreaExtra>
+    area: AreaPlugin<Schemes, AreaExtra>,
+    process: () => Promise<void>
   ) {
-    const connectionsToThisNode = connections.filter(
-      (connection) => connection.target === nodeId
-    );
-
-    const nodeItem = this.getNode(nodeId);
-    if (nodeItem && nodeItem instanceof FinalNode) {
-      (nodeItem as FinalNode).createBulkInputs(
-        connectionsToThisNode.length - 1
-      );
+    if (!nodes.length) {
+      return;
     }
 
-    for await (const connection of connectionsToThisNode) {
+    const connectionsFromThisNode = connections
+      .filter((connection) => connection.source === nodeId)
+      .filter((connection) =>
+        nodes.find((node) => node.id === connection.target)
+      );
+
+    for await (const connection of connectionsFromThisNode) {
       const source = this.getNode(connection.source) as SourceNodes;
       const target = this.getNode(connection.target) as TargetNodes;
 
       await retryOperation(async () => {
-        // @ts-ignore
-        if (source.outputs[connection.sourceOutput.toString()]) {
+        if (source.hasOutput(connection.sourceOutput)) {
+          // @ts-ignore
+          if (!target.hasInput(connection.targetInput)) {
+            if (target instanceof FinalNode) {
+              (target as FinalNode).addInputControl(process);
+            }
+            throw new Error('not filled yet');
+          }
           return true;
         }
         throw new Error('not filled yet');
@@ -246,8 +253,6 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       } catch (error) {
         console.log('error', error);
       }
-      area.update('node', source.id);
-      area.update('node', target.id);
     }
   }
 }

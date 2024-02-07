@@ -1,4 +1,3 @@
-import { ClassicPreset } from 'rete';
 import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
 import {
   ArrangeAppliers,
@@ -24,22 +23,14 @@ import { QueryDropdownElement } from './elements/QueryDropDown';
 import { ArrayNode } from './nodes/array-node';
 import { FinalNode } from './nodes/final-node';
 import { JSONObejctNode } from './nodes/json-object-node';
-import { SamplerNode } from './nodes/root-node';
-import {
-  AreaExtra,
-  ConnProps,
-  EditorExtraOptions,
-  Node,
-  Schemes,
-} from './types';
+import { AreaExtra, EditorExtraOptions, Schemes } from './types';
 import { MinimapPlugin } from 'rete-minimap-plugin';
 import {
   extractDataByPaths,
   getSamplerRoot as getRoot,
-  retryOperation,
+  getExportData,
+  getPaths,
 } from './utils';
-import { getExportData } from './utils';
-import { getPaths } from './utils';
 import { NodeEditor } from './editor-node';
 
 export async function createEditor(
@@ -81,10 +72,11 @@ export async function createEditor(
   }
 
   async function process() {
-    engine.reset();
-
     const nodes = editor.getNodes();
-    nodes.forEach((n) => engine.fetch(n.id));
+    for await (const n of nodes) {
+      await engine.fetch(n.id);
+    }
+    engine.reset();
     const paths = await getPaths(editor);
 
     updateParentComponent(paths);
@@ -179,9 +171,7 @@ export async function createEditor(
     }
     return context;
   });
-
   await editor.populate(options, area, engine, process);
-
   const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
     duration: 500,
     timingFunction: (t) => t,
