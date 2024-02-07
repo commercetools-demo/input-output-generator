@@ -1,15 +1,18 @@
 import { NodeEditor } from 'rete';
-import { ArrayNode } from './editor-nodes/array-node';
-import { SamplerNode } from './editor-nodes/sample-node';
-import { ConnProps, Schemes } from './types';
-import { FinalNode } from './editor-nodes/final-node';
+import { ArrayNode } from './nodes/array-node';
+import { SamplerNode } from './nodes/root-node';
+import { ConnProps, Node, Schemes, StoredNode } from './types';
+import { FinalNode } from './nodes/final-node';
 
-export const extractDataByPaths = (json: any, paths: string[]) => {
+export const extractDataByPaths = (
+  json: Record<string, unknown>,
+  paths: string[]
+) => {
   const result = {};
 
   function extract(
-    currentPart: any,
-    currentResult: any,
+    currentPart: Record<string, unknown>,
+    currentResult: Record<string, unknown>,
     remainingPath: string[]
   ) {
     if (remainingPath.length === 0) {
@@ -22,7 +25,11 @@ export const extractDataByPaths = (json: any, paths: string[]) => {
     if (Array.isArray(currentPart)) {
       currentPart.forEach((item, index) => {
         if (!currentResult[index]) currentResult[index] = {};
-        extract(item, currentResult[index], remainingPath);
+        extract(
+          item,
+          currentResult[index] as Record<string, unknown>,
+          remainingPath
+        );
       });
     } else if (typeof currentPart[nextKey] !== 'undefined') {
       if (nextPath.length === 0) {
@@ -31,7 +38,11 @@ export const extractDataByPaths = (json: any, paths: string[]) => {
         currentResult[nextKey] =
           currentResult[nextKey] ||
           (Array.isArray(currentPart[nextKey]) ? [] : {});
-        extract(currentPart[nextKey], currentResult[nextKey], nextPath);
+        extract(
+          currentPart[nextKey] as Record<string, unknown>,
+          currentResult[nextKey] as Record<string, unknown>,
+          nextPath
+        );
       }
     }
   }
@@ -45,7 +56,7 @@ export const extractDataByPaths = (json: any, paths: string[]) => {
 };
 export const getParentPath = (
   editor: NodeEditor<Schemes>,
-  node: any,
+  node: Node,
   allConnections: ConnProps[]
 ): string => {
   const connectionsToCurrentNode = allConnections.filter(
@@ -83,7 +94,7 @@ export const getParentPath = (
   return getParentPath(editor, parent, allConnections) + currentPath;
 };
 
-const getRootPath = (node: any, editor: NodeEditor<Schemes>): string => {
+const getRootPath = (node: Node, editor: NodeEditor<Schemes>): string => {
   const allConnections = editor.getConnections();
   const connectionsToCurrentNode = allConnections.filter(
     (c) => c.target === node.id
@@ -148,11 +159,66 @@ export const getSamplerRoot = (
   editor: NodeEditor<Schemes>
 ): SamplerNode | undefined => {
   const allNodes = editor.getNodes();
-  const allConnections = editor.getConnections();
   return allNodes.filter((node) => {
-    return (
-      allConnections.find((c) => c.source === node.id) &&
-      node instanceof SamplerNode
-    );
+    return node instanceof SamplerNode;
   })?.[0] as SamplerNode;
 };
+export function getExportData(nodes: Node[], connections: ConnProps[]) {
+  const exportData: {
+    nodes: StoredNode[];
+    connections: Omit<ConnProps, 'id'>[];
+  } = {
+    nodes: [],
+    connections: [],
+  };
+
+  exportData.nodes = nodes.map((node) => {
+    return node.getExportData();
+  });
+
+  for (const connection of connections) {
+    exportData.connections.push({
+      source: connection.source,
+      sourceOutput: connection.sourceOutput,
+      target: connection.target,
+      targetInput: connection.targetInput,
+    });
+  }
+  return exportData;
+}
+export async function getPaths(editor: NodeEditor<Schemes>) {
+  const allPaths = await Promise.all(
+    editor
+      .getNodes()
+      .filter((n) => n instanceof FinalNode)
+      .map((n) => getAllPaths(n as FinalNode, editor))
+  );
+  const paths = allPaths.reduce((a, b) => [...a, ...b], []);
+  return paths;
+}
+
+export async function retryOperation(
+  operation: () => Promise<unknown>,
+  maxRetries = 10,
+  delay = 500
+) {
+  return new Promise((resolve, reject) => {
+    let attempts = 0;
+
+    const execute = () => {
+      operation()
+        .then(resolve)
+        .catch(() => {
+          if (attempts < maxRetries) {
+            attempts++;
+            console.log(`Attempt ${attempts}: Retrying in ${delay}ms`);
+            setTimeout(execute, delay);
+          } else {
+            reject(`Failed after ${attempts} retries.`);
+          }
+        });
+    };
+
+    execute();
+  });
+}

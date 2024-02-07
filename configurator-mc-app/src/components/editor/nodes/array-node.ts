@@ -1,10 +1,10 @@
 import { ClassicPreset } from 'rete';
-import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
 import { EditorExtraOptions } from '../types';
+import { BasicNode } from './basic-node';
 
 const socket = new ClassicPreset.Socket('socket');
 
-export class ArrayNode extends ClassicPreset.Node<
+export class ArrayNode extends BasicNode<
   {
     array: ClassicPreset.Socket;
   },
@@ -13,17 +13,10 @@ export class ArrayNode extends ClassicPreset.Node<
     index: ClassicPreset.InputControl<'number'>;
   }
 > {
-  path: string = '';
-  height = INITIAL_HEIGHT;
-  width = INITIAL_WIDTH;
-  options?: EditorExtraOptions;
-  returningObject: Record<string, any> = {};
   index = 0;
-  change?: () => void;
 
   constructor(options?: EditorExtraOptions, change?: () => void) {
-    super('ARRAY');
-    this.change = change;
+    super('ARRAY', options, change);
 
     const arrayItem = new ClassicPreset.Input(socket, 'array');
     this.addInput('array', arrayItem);
@@ -35,8 +28,6 @@ export class ArrayNode extends ClassicPreset.Node<
         change: this.updateIndex,
       })
     );
-
-    this.options = options;
   }
 
   updateIndex = (value: number) => {
@@ -49,7 +40,9 @@ export class ArrayNode extends ClassicPreset.Node<
     this.updateNode();
   };
 
-  async data(inputs: { array: any[] }): any {
+  async data(inputs: {
+    array: [Record<string, string | number | object>[]];
+  }): Promise<Record<string, string | number | object>> {
     this.updateInputs();
 
     const { array } = inputs;
@@ -64,11 +57,7 @@ export class ArrayNode extends ClassicPreset.Node<
     return { [this.path]: array[0][this.index] };
   }
 
-  private updateNode() {
-    this.options?.area?.update('node', this.id);
-  }
-
-  private updateOutputs(array: any[]) {
+  private updateOutputs(array: [Record<string, string | number | object>[]]) {
     if (Object.keys(this.outputs).length) {
       Object.keys(this.outputs).forEach((key) => {
         this.removeOutput(key);
@@ -93,7 +82,7 @@ export class ArrayNode extends ClassicPreset.Node<
     });
 
     if (connectionToThisNode && this.inputs.array) {
-      this.inputs.array.label = connectionToThisNode.sourceOutput;
+      this.inputs.array.label = connectionToThisNode.sourceOutput.toString();
       this.path = this.inputs.array.label;
     }
   }

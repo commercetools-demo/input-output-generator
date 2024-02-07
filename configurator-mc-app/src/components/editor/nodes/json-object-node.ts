@@ -1,42 +1,34 @@
 import { ClassicPreset } from 'rete';
-import { INITIAL_HEIGHT, INITIAL_WIDTH } from '../constants';
-import { EditorExtraOptions, TProductNode } from '../types';
+import { INITIAL_HEIGHT } from '../constants';
+import { EditorExtraOptions } from '../types';
 import { CheckboxControl } from '../controls/CheckboxControl';
-import { getFullPathExceptRoot, getSamplerRoot } from '../utils';
+import { getFullPathExceptRoot } from '../utils';
+import { BasicNode } from './basic-node';
 
 const socket = new ClassicPreset.Socket('socket');
 
-export class JSONObejctNode extends ClassicPreset.Node<
+export class JSONObejctNode extends BasicNode<
   {
     jsonObject: ClassicPreset.Socket;
   },
-  TProductNode,
+  Record<string, ClassicPreset.Socket>,
   {
     expand: CheckboxControl;
   }
 > {
-  path: string = '';
-  height = INITIAL_HEIGHT;
-  width = INITIAL_WIDTH;
-  options?: EditorExtraOptions;
-  returningObject: Record<string, any> = {};
-  change?: () => void;
-
   constructor(options?: EditorExtraOptions, change?: () => void) {
-    super('JSON object');
-
+    super('JSON object', options, change);
     const jsonObject = new ClassicPreset.Input(socket, 'JSON object');
     const expand = new CheckboxControl(this.onChange);
     expand.label = 'Expand?';
 
     this.addInput('jsonObject', jsonObject);
     this.addControl('expand', expand);
-
-    this.options = options;
-    this.change = change;
   }
 
-  async data(inputs: { jsonObject: any[] }): any {
+  async data(inputs: {
+    jsonObject: Record<string, string | number | object>[];
+  }) {
     this.updateInputs();
 
     const { jsonObject } = inputs;
@@ -49,7 +41,7 @@ export class JSONObejctNode extends ClassicPreset.Node<
   }
 
   onChange = async (checked: boolean) => {
-    const root = getSamplerRoot(this.options?.editor!);
+    const root = this.options?.editor?.getRoot();
     const fullPath = getFullPathExceptRoot(this.id, this.options?.editor!);
 
     if (root) {
@@ -64,11 +56,9 @@ export class JSONObejctNode extends ClassicPreset.Node<
     this.updateNode();
   };
 
-  private updateNode() {
-    this.options?.area?.update('node', this.id);
-  }
-
-  private updateOutputs(jsonObject: any[]) {
+  private updateOutputs(
+    jsonObject: Record<string, string | number | object>[]
+  ) {
     const outputKeys = Object.keys(this.outputs);
     const jsonObjectKeys = Object.keys(jsonObject?.[0] || {});
     const heightMultiplier = jsonObjectKeys.length;
@@ -102,7 +92,8 @@ export class JSONObejctNode extends ClassicPreset.Node<
     });
 
     if (connectionToThisNode && this.inputs.jsonObject) {
-      this.inputs.jsonObject.label = connectionToThisNode.sourceOutput;
+      this.inputs.jsonObject.label =
+        connectionToThisNode.sourceOutput.toString();
       this.path = this.inputs.jsonObject.label;
     }
   }
