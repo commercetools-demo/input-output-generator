@@ -182,7 +182,6 @@ export async function createEditor(
 
   await editor.populate(options, area, engine, process);
 
-
   const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
     duration: 500,
     timingFunction: (t) => t,
@@ -198,14 +197,3 @@ export async function createEditor(
     destroy: () => area.destroy(),
   };
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -54,7 +54,7 @@ type TUseCustomObjectFetcher = (variables: TQuery_CustomObjectArgs) => {
     container: string;
     value: {
       [key: string]: any;
-    }
+    };
     key: string;
   } | null;
   error?: ApolloError;

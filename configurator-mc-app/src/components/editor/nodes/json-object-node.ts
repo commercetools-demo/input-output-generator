@@ -16,7 +16,6 @@ export class JSONObejctNode extends BasicNode<
     expand: CheckboxControl;
   }
 > {
-
   constructor(options?: EditorExtraOptions, change?: () => void) {
     super('JSON object', options, change);
     const jsonObject = new ClassicPreset.Input(socket, 'JSON object');
@@ -27,7 +26,9 @@ export class JSONObejctNode extends BasicNode<
     this.addControl('expand', expand);
   }
 
-  async data(inputs: { jsonObject: Record<string, string | number | object>[] }) {
+  async data(inputs: {
+    jsonObject: Record<string, string | number | object>[];
+  }) {
     this.updateInputs();
 
     const { jsonObject } = inputs;
@@ -55,7 +56,9 @@ export class JSONObejctNode extends BasicNode<
     this.updateNode();
   };
 
-  private updateOutputs(jsonObject: Record<string, string | number | object>[]) {
+  private updateOutputs(
+    jsonObject: Record<string, string | number | object>[]
+  ) {
     const outputKeys = Object.keys(this.outputs);
     const jsonObjectKeys = Object.keys(jsonObject?.[0] || {});
     const heightMultiplier = jsonObjectKeys.length;
@@ -89,7 +92,8 @@ export class JSONObejctNode extends BasicNode<
     });
 
     if (connectionToThisNode && this.inputs.jsonObject) {
-      this.inputs.jsonObject.label = connectionToThisNode.sourceOutput.toString();
+      this.inputs.jsonObject.label =
+        connectionToThisNode.sourceOutput.toString();
       this.path = this.inputs.jsonObject.label;
     }
   }

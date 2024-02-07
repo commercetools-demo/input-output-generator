@@ -39,7 +39,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
         process
       );
     } else {
-    await this.populateWithDefaultNodes(options, area, engine, process);
+      await this.populateWithDefaultNodes(options, area, engine, process);
     }
   }
 

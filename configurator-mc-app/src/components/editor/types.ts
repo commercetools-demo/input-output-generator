@@ -30,7 +30,7 @@ export interface EditorExtraOptions {
   getSampleData?: (entity: string, body?: object) => Promise<SampleDataResult>;
   setPreviewData?: (json: string) => void;
   exportConfig?: (config: ExportConfigParams) => void;
-  initialData?: { nodes: StoredNode[], connections: Omit<ConnProps, 'id'>[]  };
+  initialData?: { nodes: StoredNode[]; connections: Omit<ConnProps, 'id'>[] };
   area?: AreaPlugin<Schemes, AreaExtra>;
   editor?: NodeEditor;
   engine?: DataflowEngine<Schemes>;
@@ -69,17 +69,13 @@ interface StoredInput {
 interface StoredControlEntity {
   id?: string;
   _entity?: string;
-  label?: string; 
+  label?: string;
 }
 
-export type Node =
-  | SamplerNode
-  | JSONObejctNode
-  | ArrayNode
-  | FinalNode;
+export type Node = SamplerNode | JSONObejctNode | ArrayNode | FinalNode;
 
-  export type SourceNodes = SamplerNode | ArrayNode | JSONObejctNode;
-  export type TargetNodes = JSONObejctNode | FinalNode | ArrayNode;
+export type SourceNodes = SamplerNode | ArrayNode | JSONObejctNode;
+export type TargetNodes = JSONObejctNode | FinalNode | ArrayNode;
 export class Connection<
   A extends Node,
   B extends Node

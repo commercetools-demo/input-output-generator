@@ -67,7 +67,7 @@ export class FinalNode extends BasicNode<
     for (let index = 1; index < count; index++) {
       this.addInputControl();
     }
-  }
+  };
 
   async data(): Promise<string> {
     return 'data';

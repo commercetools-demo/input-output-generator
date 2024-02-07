@@ -4,7 +4,10 @@ import { SamplerNode } from './nodes/root-node';
 import { ConnProps, Node, Schemes, StoredNode } from './types';
 import { FinalNode } from './nodes/final-node';
 
-export const extractDataByPaths = (json: Record<string, unknown>, paths: string[]) => {
+export const extractDataByPaths = (
+  json: Record<string, unknown>,
+  paths: string[]
+) => {
   const result = {};
 
   function extract(
@@ -194,7 +197,11 @@ export async function getPaths(editor: NodeEditor<Schemes>) {
   return paths;
 }
 
-export async function retryOperation(operation: () => Promise<unknown>, maxRetries = 5, delay = 500) {
+export async function retryOperation(
+  operation: () => Promise<unknown>,
+  maxRetries = 5,
+  delay = 500
+) {
   return new Promise((resolve, reject) => {
     let attempts = 0;
 
