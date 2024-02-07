@@ -1436,6 +1436,14 @@
     "@babel/runtime" "^7.22.15"
     "@babel/runtime-corejs3" "^7.22.15"
 
+"@commercetools-frontend/constants@22.17.0":
+  version "22.17.0"
+  resolved "https://registry.yarnpkg.com/@commercetools-frontend/constants/-/constants-22.17.0.tgz#88a1d74ad134d96398c05f90ae155fc2adea9454"
+  integrity sha512-xHdRz1/EayEEfvmXH1YbBPQgEadMmaVv//TCJ8YTMATtYZxQeHkvrjjvTh1T/eRq34atSFTy690nn8oUB+dAog==
+  dependencies:
+    "@babel/runtime" "^7.22.15"
+    "@babel/runtime-corejs3" "^7.22.15"
+
 "@commercetools-frontend/eslint-config-mc-app@22.16.0":
   version "22.16.0"
   resolved "https://registry.yarnpkg.com/@commercetools-frontend/eslint-config-mc-app/-/eslint-config-mc-app-22.16.0.tgz#23263f12ead30fba283cb1b8d94a434d9dc9c547"
@@ -1688,6 +1696,31 @@
     "@babel/runtime" "^7.22.15"
     "@babel/runtime-corejs3" "^7.22.15"
     "@commercetools-frontend/constants" "22.16.0"
+    "@commercetools/api-request-builder" "6.0.0"
+    "@commercetools/http-user-agent" "3.0.0"
+    "@commercetools/sdk-client" "3.0.0"
+    "@commercetools/sdk-middleware-correlation-id" "3.0.0"
+    "@commercetools/sdk-middleware-http" "7.0.2"
+    "@types/node-fetch" "2.6.3"
+    "@types/prop-types" "^15.7.5"
+    "@types/react" "^17.0.56"
+    "@types/react-redux" "^7.1.26"
+    buffer "6.0.3"
+    fast-equals "2.0.4"
+    omit-empty-es "1.1.3"
+    prop-types "15.8.1"
+    qss "2.0.3"
+    unfetch "4.2.0"
+    uuid "9.0.0"
+
+"@commercetools-frontend/sdk@^22.17.0":
+  version "22.17.0"
+  resolved "https://registry.yarnpkg.com/@commercetools-frontend/sdk/-/sdk-22.17.0.tgz#0df21a10681c3355222ce12aebabfc3e6bff358e"
+  integrity sha512-B/ZA7l+kqiJ9e7auE8g76U0Uyr/vWHoJOMmsGOVORr5SaMLjF5U8f36HR/VsMqjyLe6c0mKek1gvtYWEBxWyhQ==
+  dependencies:
+    "@babel/runtime" "^7.22.15"
+    "@babel/runtime-corejs3" "^7.22.15"
+    "@commercetools-frontend/constants" "22.17.0"
     "@commercetools/api-request-builder" "6.0.0"
     "@commercetools/http-user-agent" "3.0.0"
     "@commercetools/sdk-client" "3.0.0"

@@ -16,13 +16,7 @@ const config = {
       url: '${env:APPLICATION_URL}',
     },
   },
-  headers: {
-    csp: {
-      'connect-src': ['${env:SAMPLER_URL}'],
-    },
-  },
   additionalEnv: {
-    samplerURL: 'https://${env:SAMPLER_URL}',
     storageKey: '${env:STORAGE_KEY}',
     storageContainer: '${env:STORAGE_CONTAINER}',
   },
