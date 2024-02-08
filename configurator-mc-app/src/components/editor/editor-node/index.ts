@@ -48,15 +48,43 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     }
   }
 
-  getFullPath(id: string): string {
+  getPathsFromNode(id: string): string {
     const node = this.getNode(id);
     if (node) {
-      return this.traverseParentPath(node);
+      return this.traverseParentPath(node, true);
     }
     return '';
   }
 
-  private traverseParentPath(node: Node): string {
+  async getAllPaths() {
+    const allPaths = await Promise.all(
+      this.getNodes()
+        .filter((n) => n instanceof FinalNode)
+        .map((n) => this.getAllPathsFromFinalNode(n as FinalNode))
+    );
+    const paths = allPaths.reduce((a, b) => [...a, ...b], []);
+    return paths;
+  }
+
+  private getAllPathsFromFinalNode(n: FinalNode): string[] {
+    const paths: string[] = [];
+    const allConnections = this.getConnections();
+
+    allConnections
+      .filter((c) => c.target === n.id)
+      .forEach((c) => {
+        const parent = this.getNode(c.source);
+        const paretnPath = this.traverseParentPath(parent, false);
+
+        paths.push(paretnPath + c.sourceOutput);
+      });
+    return paths;
+  }
+
+  private traverseParentPath(
+    node: Node,
+    hanldeArrayNodeAlong: boolean
+  ): string {
     const allConnections = this.getConnections();
     const connectionsToCurrentNode = allConnections.filter(
       (c) => c.target === node.id
@@ -64,9 +92,10 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     const connectionsFromCurrentNode = allConnections.filter(
       (c) => c.source === node.id
     );
-
-    const currentDot = connectionsFromCurrentNode.length === 0 ? '' : '.';
-
+    const currentDot =
+      connectionsFromCurrentNode.length === 0 && hanldeArrayNodeAlong
+        ? ''
+        : '.';
     let currentPath = node.path + currentDot;
 
     if (node instanceof SamplerNode) {
@@ -81,11 +110,16 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       return currentPath;
     }
     const parent = this.getNode(connectionsToCurrentNode[0].source);
-    if (parent instanceof ArrayNode) {
-      return this.traverseParentPath(parent) + node.path + '[*]' + currentDot;
+    if (hanldeArrayNodeAlong && parent instanceof ArrayNode) {
+      return (
+        this.traverseParentPath(parent, hanldeArrayNodeAlong) +
+        node.path +
+        '[*]' +
+        currentDot
+      );
     }
 
-    return this.traverseParentPath(parent) + currentPath;
+    return this.traverseParentPath(parent, hanldeArrayNodeAlong) + currentPath;
   }
 
   private async populateWithStoredData(
@@ -98,7 +132,15 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
     engine: DataflowEngine<Schemes>,
     process: () => Promise<void>
   ) {
-    await this.createNodes(nodes, entity,expands, options, area, engine, process);
+    await this.createNodes(
+      nodes,
+      entity,
+      expands,
+      options,
+      area,
+      engine,
+      process
+    );
     const root = this.getRoot();
 
     await root?.checkRoot();
@@ -125,7 +167,7 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       process
     );
     const arrayN = new ArrayNode({ editor: this, area }, process);
-    const json = new JSONObejctNode({ area, editor: this },false, process);
+    const json = new JSONObejctNode({ area, editor: this }, false, process);
     const final = new FinalNode({ editor: this, area }, process);
 
     await this.addNode(query);
@@ -157,15 +199,19 @@ export class NodeEditor extends BaseNodeEditor<Schemes> {
       switch (node.label?.toLowerCase()) {
         case 'sampler':
           console.log(entity, expands);
-          
-          const samplerNode = new SamplerNode({
-            ...options,
-            id: node.id,
-            initial: entity,
-            area,
-            editor: this,
-            engine,
-          }, expands, process);
+
+          const samplerNode = new SamplerNode(
+            {
+              ...options,
+              id: node.id,
+              initial: entity,
+              area,
+              editor: this,
+              engine,
+            },
+            expands,
+            process
+          );
           await this.addNode(samplerNode);
           area?.update('node', node.id!);
           break;

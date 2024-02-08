@@ -23,15 +23,40 @@ import { QueryDropdownElement } from './elements/QueryDropDown';
 import { ArrayNode } from './nodes/array-node';
 import { FinalNode } from './nodes/final-node';
 import { JSONObejctNode } from './nodes/json-object-node';
-import { AreaExtra, EditorExtraOptions, Schemes } from './types';
-import { MinimapPlugin } from 'rete-minimap-plugin';
 import {
-  extractDataByPaths,
-  getSamplerRoot as getRoot,
-  getExportData,
-  getPaths,
-} from './utils';
+  AreaExtra,
+  ConnProps,
+  EditorExtraOptions,
+  Node,
+  Schemes,
+  StoredNode,
+} from './types';
+import { MinimapPlugin } from 'rete-minimap-plugin';
 import { NodeEditor } from './editor-node';
+
+export function getExportData(nodes: Node[], connections: ConnProps[]) {
+  const exportData: {
+    nodes: StoredNode[];
+    connections: Omit<ConnProps, 'id'>[];
+  } = {
+    nodes: [],
+    connections: [],
+  };
+
+  exportData.nodes = nodes.map((node) => {
+    return node.getExportData();
+  });
+
+  for (const connection of connections) {
+    exportData.connections.push({
+      source: connection.source,
+      sourceOutput: connection.sourceOutput,
+      target: connection.target,
+      targetInput: connection.targetInput,
+    });
+  }
+  return exportData;
+}
 
 export async function createEditor(
   options: EditorExtraOptions,
@@ -47,7 +72,7 @@ export async function createEditor(
   async function updateParentComponent(paths: string[]) {
     const nodes = editor.getNodes();
     const connections = editor.getConnections();
-    const root = getRoot(editor);
+    const root = editor.getRoot();
     const exportData = getExportData(nodes, connections);
 
     options.exportConfig?.({
@@ -59,11 +84,11 @@ export async function createEditor(
   }
 
   async function updatePreview(paths: string[]) {
-    const root = getRoot(editor);
+    const root = editor.getRoot();
     if (root) {
       options.setPreviewData?.(
         JSON.stringify(
-          extractDataByPaths(root!.returningObject, paths),
+          root.extractDataFromReturningObjectByPaths(paths),
           null,
           2
         )
@@ -77,7 +102,7 @@ export async function createEditor(
       await engine.fetch(n.id);
     }
     engine.reset();
-    const paths = await getPaths(editor);
+    const paths = await editor.getAllPaths();
 
     updateParentComponent(paths);
     updatePreview(paths);

@@ -5,7 +5,7 @@ import { EditorExtraOptions } from '../types';
 import { QueryDropdownControl } from '../controls/QueryDropdownControl';
 import { SampleDataResult } from '../../../hooks/sampler-connection/types';
 import { BasicNode } from './basic-node';
-import { retryOperation } from '../utils';
+import { extractFromPath, retryOperation } from '../utils';
 import { Control } from 'rete/_types/presets/classic';
 
 const socket = new ClassicPreset.Socket('socket');
@@ -25,7 +25,11 @@ export class SamplerNode extends BasicNode<
   expands: string[] = [];
   selectedEntity: string = '';
 
-  constructor(options?: EditorExtraOptions, expands: string[] = [], change?: () => void) {
+  constructor(
+    options?: EditorExtraOptions,
+    expands: string[] = [],
+    change?: () => void
+  ) {
     super('Sampler', options, change);
     const entity = new ClassicPreset.Input(socket, 'Entity name');
     const dropdownControl = new QueryDropdownControl(this.onDropdownChange);
@@ -63,6 +67,17 @@ export class SamplerNode extends BasicNode<
       });
   }
 
+  extractDataFromReturningObjectByPaths(paths: string[]) {
+    const result = {};
+
+    paths.forEach((path) => {
+      const parts = path.split('.');
+      extractFromPath(this.returningObject, result, parts);
+    });
+
+    return result;
+  }
+
   private onDropdownChange = async (value: string) => {
     this.selectedEntity = value;
     await this.getData(value);
@@ -76,12 +91,12 @@ export class SamplerNode extends BasicNode<
 
   private getData = async (value: string) => {
     let body: Record<string, number | string | string[]> = { limit: 5 };
-      if (this.expands.length > 0) {
-        body = {
-          ...body,
-          expand: this.expands,
-        };
-      }
+    if (this.expands.length > 0) {
+      body = {
+        ...body,
+        expand: this.expands,
+      };
+    }
     const queryResult = await this.options?.getSampleData?.(value, body);
     if (!queryResult || queryResult.results.length === 0) {
       console.log('no results');
