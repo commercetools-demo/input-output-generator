@@ -14,6 +14,7 @@ import { logger } from '../utils/logger.utils';
 export const post = async (_request: Request, response: Response) => {
   try {
     const config = await reader();
+    logger.info(`Found entity: ${config.entity}`);
     switch (config.entity) {
       case 'products':
         await exportProducts(config);
@@ -27,7 +28,6 @@ export const post = async (_request: Request, response: Response) => {
       default:
         logger.warn('No entity');
     }
-
 
     response.status(200).send();
   } catch (error) {
