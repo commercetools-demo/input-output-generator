@@ -114,8 +114,9 @@ export async function createEditor(
 
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
-      ['JSON', () => new JSONObejctNode({ editor, area }, false, process)],
+      ['Json', () => new JSONObejctNode({ editor, area }, false, process)],
       ['Array', () => new ArrayNode({ editor, area }, process)],
+      ['Output', () => new FinalNode({ editor, area }, process)],
     ]),
   });
 
