@@ -1,4 +1,3 @@
-import { Product } from '@commercetools/platform-sdk';
 import { ClassicPreset, GetSchemes } from 'rete';
 import { ReactArea2D } from 'rete-react-plugin';
 import { ContextMenuExtra } from 'rete-context-menu-plugin';
@@ -12,9 +11,6 @@ import { DataflowEngine } from 'rete-engine';
 import { MinimapExtra } from 'rete-minimap-plugin';
 import { NodeEditor } from './editor-node';
 
-export type TProductNode = {
-  [Property in keyof Product]: ClassicPreset.Socket;
-};
 
 export interface ExportConfigParams {
   entity?: string;

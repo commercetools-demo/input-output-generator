@@ -1,5 +1,4 @@
 import { ClassicPreset } from 'rete';
-import { Product } from '@commercetools/platform-sdk';
 import { INITIAL_HEIGHT } from '../constants';
 import { EditorExtraOptions } from '../types';
 import { QueryDropdownControl } from '../controls/QueryDropdownControl';
@@ -124,13 +123,12 @@ export class SamplerNode extends BasicNode<
     const heightMultiplier = queryResultKeys.length;
 
     this.height = SAMPLE_INITIAL_HEIGHT + 20 * heightMultiplier;
-    /// TODO: update might have to happen to values so remove all outputs and add new on getData
-    (queryResultKeys as Array<keyof Product>)
+    queryResultKeys
       .filter((key) => !outputKeys.includes(key))
       .forEach((key) => {
         this.addOutput(key, new ClassicPreset.Output(socket, key));
       });
-    (queryResultKeys as Array<keyof Product>).forEach((key) => {
+    queryResultKeys.forEach((key) => {
       this.returningObject[key] = queryResult[key];
     });
   }
